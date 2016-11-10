@@ -1,30 +1,56 @@
 ﻿-- Author      : Kaminari
 -- Create Date : 13:03 2015-04-20
 
--- Spells
-local _MindFlay			= 15407;
-local _MindBlast		= 8092;
-local _ShadowWordPain	= 589;
-local _ShadowWordDeath	= 32379;
-local _DevouringPlague	= 2944;
-local _MindSpike		= 73510;
-local _Mindbender		= 123040;
-local _Shadowfiend		= 34433;
-local _VampiricTouch	= 34914;
+-- Forms
+local _Voidform = 194249;
+local _Shadowform = 232698;
 
--- Auras
-local _SurgeOfDarkness	= 87160;
-local _Insanity			= 132573;
+-- Spells
+local _LegacyoftheVoid = 193225;
+local _VoidEruption = 228260;
+local _VoidBolt = 205448;
+local _ShadowWordPain = 589;
+local _VampiricTouch = 34914;
+local _MindBlast = 8092;
+local _MindFlay = 15407;
+local _VoidTorrent = 205065;
+local _Shadowfiend = 34433;
+local _ShadowWordDeath = 32379;
+local _MindSpike = 73510;
+local _MindSear = 48045;
+local _Sanlayn = 199855;
+local _AuspiciousSpirits = 155271;
+local _ShadowyInsight = 162452;
+local _Mindbender = 200174;
+local _Dispersion = 47585;
+local _ShadowCrash = 205385;
+local _ReaperofSouls = 199853;
+local _ShadowWordVoid = 205351;
+local _ShadowyApparitions = 78203;
+local _FortressoftheMind = 193195;
+local _PowerInfusion = 10060;
+local _SurrendertoMadness = 193223;
+local _LingeringInsanity = 197937;
+local _TwistofFate = 109142;
+local _VoidRay = 205371;
+local _Heroism = 32182;
+local _Bloodlust = 2825;
+local _TimeWarp = 80353;
+local _Berserking = 26297;
+local _FromtheShadows = 193642;
+
 
 -- Talents
-local _isClarityOfPower = false;
+local _isLegacyoftheVoid = false;
 local _isMindbender = false;
+local _isReaperofSouls = false;
 
 ----------------------------------------------
 -- Pre enable, checking talents
 ----------------------------------------------
 TDDps_Priest_CheckTalents = function()
-	_isClarityOfPower = TD_TalentEnabled('Clarity of Power');
+	_isLegacyoftheVoid  = TD_TalentEnabled('Legacy of the Void');
+	_isReaperofSouls  = TD_TalentEnabled('Reaper of Souls');
 	_isMindbender = TD_TalentEnabled('Mindbender');
 	-- other checking functions
 end
@@ -52,88 +78,101 @@ end
 -- Main rotation: Discipline
 ----------------------------------------------
 TDDps_Priest_Discipline = function()
-	local lcd, currentSpell, gcd = TD_EndCast();
-	local timeShift = lcd;
-	if gcd > timeShift then
-		timeShift = gcd;
-	end
+	local timeShift, currentSpell, gcd = TD_EndCast();
 
-	return _Spell;
+	return nil;
 end
 
 ----------------------------------------------
 -- Main rotation: Holy
 ----------------------------------------------
 TDDps_Priest_Holy = function()
-	local lcd, currentSpell, gcd = TD_EndCast();
-	local timeShift = lcd;
-	if gcd > timeShift then
-		timeShift = gcd;
-	end
+	local timeShift, currentSpell, gcd = TD_EndCast();
 
-	return _Spell;
+	return nil;
 end
 
 ----------------------------------------------
 -- Main rotation: Shadow
 ----------------------------------------------
 TDDps_Priest_Shadow = function()
-	local lcd, currentSpell, gcd = TD_EndCast();
-	local timeShift = lcd;
-	if gcd > timeShift then
-		timeShift = gcd;
+	local timeShift, currentSpell, gcd = TD_EndCast();
+
+	local insa = UnitPower('player', SPELL_POWER_INSANITY);
+
+	local voidT = TD_SpellAvailable(_VoidTorrent, timeShift);
+	local voidB = TD_SpellAvailable(_VoidBolt, timeShift + 1);
+	local shadowF = TD_SpellAvailable(_Shadowfiend, timeShift);
+	local mb = TD_SpellAvailable(_MindBlast, timeShift + 1);
+	local swd, swdCharges, swdMax = TD_SpellCharges(_ShadowWordDeath, timeShift + 0.5);
+
+	local sf = TD_PersistentAura(_Shadowform);
+	local vf, vCharges = TD_PersistentAura(_Voidform);
+
+	local swp = TD_TargetAura(_ShadowWordPain, timeShift + 3);
+	local vt = TD_TargetAura(_VampiricTouch, timeShift + 4);
+
+	local targetPh = TD_TargetPercentHealth();
+	local canDeath = targetPh < 0.2 or (_isReaperofSouls and targetPh < 0.35);
+
+	if not sf and not vf then
+		return _Shadowform;
 	end
 
-	local orbs = UnitPower('player', SPELL_POWER_SHADOW_ORBS);
+	-- void form rotation
+	if vf or currentSpell == 'Void Eruption' then
+		if voidT and currentSpell ~= 'Void Torrent' then
+			return _VoidTorrent;
+		end
 
-	local mbCd = TD_SpellAvailable(_MindBlast, timeShift);
-	local targetPH = TD_TargetPercentHealth();
-	local death = TD_SpellAvailable(_ShadowWordDeath, timeShift);
+		if voidB then
+			return _VoidEruption;
+		end
 
-	local surge = TD_Aura(_SurgeOfDarkness, timeShift);
-	local insanity = TD_Aura(_Insanity, timeShift);
+		if vCharges < 20 and shadowF then
+			return _Shadowfiend;
+		end
 
-	local swp = TD_TargetAura(_ShadowWordPain, timeShift + 5)
-	local vt = TD_TargetAura(_VampiricTouch, timeShift + 4)
+		if swdCharges >= swdMax and canDeath then
+			return _ShadowWordDeath;
+		end
 
-	if _isMindbender then
-		local mb = TD_SpellAvailable(_Mindbender, timeShift);
-		TDButton_GlowCooldown(_Mindbender, mb);
+		if mb and currentSpell ~= 'Mind Blast' then
+			return _MindBlast;
+		end
+
+		if insa < 20 and swdCharges > 0 and canDeath then
+			return _ShadowWordDeath;
+		end
+
+		if vCharges > 20 and shadowF then
+			return _Shadowfiend;
+		end
+
+		if not swp then
+			return _ShadowWordPain;
+		end
+
+		if not vt and currentSpell ~= 'Vampiric Touch' then
+			return _VampiricTouch;
+		end
 	else
-		local sf = TD_SpellAvailable(_Shadowfiend, timeShift);
-		TDButton_GlowCooldown(_Shadowfiend, sf);
-	end
+		-- normal rotation
+		if insa >= 100 or (_isLegacyoftheVoid and insa >= 70) then
+			return _VoidEruption;
+		end
 
-	if orbs >= 3 then
-		return _DevouringPlague;
-	end
+		if mb and currentSpell ~= 'Mind Blast' then
+			return _MindBlast;
+		end
 
-	if mbCd and orbs < 5 and currentSpell ~= 'Mind Blast' then
-		return _MindBlast;
-	end
+		if not swp then
+			return _ShadowWordPain;
+		end
 
-	if targetPH < 0.2 and death then
-		return _ShadowWordDeath;
-	end
-
-	if surge and currentSpell ~= 'Mind Spike' then
-		return _MindSpike;
-	end
-
-	if insanity then
-		return _MindFlay;
-	end
-
-	if not swp and not _isClarityOfPower then
-		return _ShadowWordPain;
-	end
-
-	if not vt and not _isClarityOfPower and currentSpell ~= 'Vampiric Touch' then
-		return _VampiricTouch;
-	end
-
-	if _isClarityOfPower then
-		return _MindSpike;
+		if not vt and currentSpell ~= 'Vampiric Touch' then
+			return _VampiricTouch;
+		end
 	end
 
 	return _MindFlay;

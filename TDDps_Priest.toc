@@ -1,5 +1,5 @@
 ## Title: TDDps_Priest
-## Version: 1.2.1
+## Version: 1.3
 ## Author: Kaminari
 ## Interface: 60200
 ## Dependencies: TDDps
