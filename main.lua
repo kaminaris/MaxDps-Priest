@@ -149,12 +149,12 @@ TDDps_Priest_Shadow = function()
 			return _Shadowfiend;
 		end
 
-		if not swp then
-			return _ShadowWordPain;
-		end
-
 		if not vt and currentSpell ~= 'Vampiric Touch' then
 			return _VampiricTouch;
+		end
+
+		if not swp then
+			return _ShadowWordPain;
 		end
 	else
 		-- normal rotation
@@ -166,12 +166,12 @@ TDDps_Priest_Shadow = function()
 			return _MindBlast;
 		end
 
-		if not swp then
-			return _ShadowWordPain;
-		end
-
 		if not vt and currentSpell ~= 'Vampiric Touch' then
 			return _VampiricTouch;
+		end
+
+		if not swp then
+			return _ShadowWordPain;
 		end
 	end
 
