@@ -1,7 +1,4 @@
-﻿-- Author      : Kaminari
--- Create Date : 13:03 2015-04-20
-
--- Forms
+﻿-- Forms
 local _Voidform = 194249;
 local _Shadowform = 232698;
 
@@ -44,89 +41,84 @@ local _FromtheShadows = 193642;
 local _isLegacyoftheVoid = false;
 local _isMindbender = false;
 local _isReaperofSouls = false;
+local _isPowerInfusion = false;
 
-----------------------------------------------
--- Pre enable, checking talents
-----------------------------------------------
-TDDps_Priest_CheckTalents = function()
-	_isLegacyoftheVoid  = TD_TalentEnabled('Legacy of the Void');
-	_isReaperofSouls  = TD_TalentEnabled('Reaper of Souls');
-	_isMindbender = TD_TalentEnabled('Mindbender');
+MaxDps.Priest = {};
+
+MaxDps.Priest.CheckTalents = function()
+	_isLegacyoftheVoid  = MaxDps:TalentEnabled('Legacy of the Void');
+	_isReaperofSouls  = MaxDps:TalentEnabled('Reaper of Souls');
+	_isPowerInfusion  = MaxDps:TalentEnabled('Power Infusion');
+	_isMindbender = MaxDps:TalentEnabled('Mindbender');
 	-- other checking functions
 end
 
-----------------------------------------------
--- Enabling Addon
-----------------------------------------------
-function TDDps_Priest_EnableAddon(mode)
-mode = mode or 1;
-_TD["DPS_Description"] = "TD Priest DPS supports: Shadow";
-_TD["DPS_OnEnable"] = TDDps_Priest_CheckTalents;
-if mode == 1 then
-	_TD["DPS_NextSpell"] = TDDps_Priest_Discipline;
-end;
-if mode == 2 then
-	_TD["DPS_NextSpell"] = TDDps_Priest_Holy;
-end;
-if mode == 3 then
-	_TD["DPS_NextSpell"] = TDDps_Priest_Shadow;
-end;
-TDDps_EnableAddon();
+function MaxDps:EnableRotationModule(mode)
+	mode = mode or 1;
+	MaxDps.Description = 'Priest Module [Shadow]';
+	MaxDps.ModuleOnEnable = MaxDps.Priest.CheckTalents;
+	if mode == 1 then
+		MaxDps.NextSpell = MaxDps.Priest.Discipline;
+	end;
+	if mode == 2 then
+		MaxDps.NextSpell = MaxDps.Priest.Holy;
+	end;
+	if mode == 3 then
+		MaxDps.NextSpell = MaxDps.Priest.Shadow;
+	end;
 end
 
-----------------------------------------------
--- Main rotation: Discipline
-----------------------------------------------
-TDDps_Priest_Discipline = function()
-	local timeShift, currentSpell, gcd = TD_EndCast();
+function MaxDps.Priest.Discipline()
+	local timeShift, currentSpell, gcd = MaxDps:EndCast();
 
 	return nil;
 end
 
-----------------------------------------------
--- Main rotation: Holy
-----------------------------------------------
-TDDps_Priest_Holy = function()
-	local timeShift, currentSpell, gcd = TD_EndCast();
+function MaxDps.Priest.Holy()
+	local timeShift, currentSpell, gcd = MaxDps:EndCast();
 
 	return nil;
 end
 
-----------------------------------------------
--- Main rotation: Shadow
-----------------------------------------------
-TDDps_Priest_Shadow = function()
-	local timeShift, currentSpell, gcd = TD_EndCast();
+function MaxDps.Priest.Shadow()
+	local timeShift, currentSpell, gcd = MaxDps:EndCast();
 
 	local insa = UnitPower('player', SPELL_POWER_INSANITY);
 
-	local voidT = TD_SpellAvailable(_VoidTorrent, timeShift);
-	local voidB = TD_SpellAvailable(_VoidBolt, timeShift + 1);
-	local shadowF = TD_SpellAvailable(_Shadowfiend, timeShift);
-	local mb = TD_SpellAvailable(_MindBlast, timeShift + 1);
-	local swd, swdCharges, swdMax = TD_SpellCharges(_ShadowWordDeath, timeShift + 0.5);
+	local voidT = MaxDps:SpellAvailable(_VoidTorrent, timeShift);
+	local voidB = MaxDps:SpellAvailable(_VoidBolt, timeShift + 0.5);
+	local shadowF = MaxDps:SpellAvailable(_Shadowfiend, timeShift);
+	local pi = MaxDps:SpellAvailable(_PowerInfusion, timeShift);
+	local mb = MaxDps:SpellAvailable(_MindBlast, timeShift + 0.5);
+	local swd, swdCharges, swdMax = MaxDps:SpellCharges(_ShadowWordDeath, timeShift + 0.5);
 
-	local sf = TD_PersistentAura(_Shadowform);
-	local vf, vCharges = TD_PersistentAura(_Voidform);
+	local sf = MaxDps:PersistentAura(_Shadowform);
+	local vf, vCharges = MaxDps:PersistentAura(_Voidform);
 
-	local swp = TD_TargetAura(_ShadowWordPain, timeShift + 3);
-	local vt = TD_TargetAura(_VampiricTouch, timeShift + 4);
+	local swp, swpCd = MaxDps:TargetAura(_ShadowWordPain, timeShift + 3);
+	local vt, vtCd = MaxDps:TargetAura(_VampiricTouch, timeShift + 4);
 
-	local targetPh = TD_TargetPercentHealth();
+	local targetPh = MaxDps:TargetPercentHealth();
 	local canDeath = targetPh < 0.2 or (_isReaperofSouls and targetPh < 0.35);
 
 	if not sf and not vf then
 		return _Shadowform;
 	end
 
+	MaxDps:GlowCooldown(_PowerInfusion, _isPowerInfusion and pi);
+
 	-- void form rotation
 	if vf or currentSpell == 'Void Eruption' then
+		if swp and vt and (swpCd < 5 or vtCd < 6) then
+			return _VoidBolt;
+		end
+
 		if voidT and currentSpell ~= 'Void Torrent' then
 			return _VoidTorrent;
 		end
 
 		if voidB then
-			return _VoidEruption;
+			return _VoidBolt;
 		end
 
 		if vCharges < 20 and shadowF then
