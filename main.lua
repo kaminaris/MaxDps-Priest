@@ -36,21 +36,24 @@ local _TimeWarp = 80353;
 local _Berserking = 26297;
 local _FromtheShadows = 193642;
 
-
 -- Talents
+local _LegacyOfTheVoid = 193225;
+
 local _isLegacyoftheVoid = false;
 local _isMindbender = false;
 local _isReaperofSouls = false;
 local _isPowerInfusion = false;
+local _isMindSpike = false;
 
 MaxDps.Priest = {};
 
 MaxDps.Priest.CheckTalents = function()
-	_isLegacyoftheVoid  = MaxDps:TalentEnabled('Legacy of the Void');
-	_isReaperofSouls  = MaxDps:TalentEnabled('Reaper of Souls');
-	_isPowerInfusion  = MaxDps:TalentEnabled('Power Infusion');
-	_isMindbender = MaxDps:TalentEnabled('Mindbender');
-	-- other checking functions
+	MaxDps:CheckTalents();
+	_isLegacyoftheVoid  = MaxDps:HasTalent(_LegacyOfTheVoid);
+	_isReaperofSouls  = MaxDps:HasTalent(_ReaperofSouls);
+	_isPowerInfusion  = MaxDps:HasTalent(_PowerInfusion);
+	_isMindbender = MaxDps:HasTalent(_Mindbender);
+	_isMindSpike = MaxDps:HasTalent(_MindSpike);
 end
 
 function MaxDps:EnableRotationModule(mode)
@@ -87,9 +90,22 @@ function MaxDps.Priest.Shadow()
 
 	local voidT = MaxDps:SpellAvailable(_VoidTorrent, timeShift);
 	local voidB = MaxDps:SpellAvailable(_VoidBolt, timeShift + 0.5);
-	local shadowF = MaxDps:SpellAvailable(_Shadowfiend, timeShift);
+
+	-- Fix a bug when void bolt tooltip does not refresh
+	local voidBolt = _VoidBolt;
+	if MaxDps:FindSpell(_VoidEruption) then
+		voidBolt = _VoidEruption;
+	end
+
+	local shadowFiend = _Shadowfiend;
+	if _isMindbender then
+		shadowFiend = _Mindbender;
+	end
+	local shadowF = MaxDps:SpellAvailable(shadowFiend, timeShift);
+
 	local pi = MaxDps:SpellAvailable(_PowerInfusion, timeShift);
 	local mb = MaxDps:SpellAvailable(_MindBlast, timeShift + 0.5);
+
 	local swd, swdCharges, swdMax = MaxDps:SpellCharges(_ShadowWordDeath, timeShift + 0.5);
 
 	local sf = MaxDps:PersistentAura(_Shadowform);
@@ -108,28 +124,28 @@ function MaxDps.Priest.Shadow()
 	MaxDps:GlowCooldown(_PowerInfusion, _isPowerInfusion and pi);
 
 	-- void form rotation
-	if vf or currentSpell == 'Void Eruption' then
+	if vf or MaxDps:SameSpell(currentSpell, _VoidEruption) then
 		if swp and vt and (swpCd < 5 or vtCd < 6) then
-			return _VoidBolt;
+			return voidBolt;
 		end
 
-		if voidT and currentSpell ~= 'Void Torrent' then
+		if voidT and not MaxDps:SameSpell(currentSpell, _VoidTorrent) then
 			return _VoidTorrent;
 		end
 
 		if voidB then
-			return _VoidBolt;
+			return voidBolt;
 		end
 
 		if vCharges < 20 and shadowF then
-			return _Shadowfiend;
+			return shadowFiend;
 		end
 
 		if swdCharges >= swdMax and canDeath then
 			return _ShadowWordDeath;
 		end
 
-		if mb and currentSpell ~= 'Mind Blast' then
+		if mb and not MaxDps:SameSpell(currentSpell, _MindBlast) then
 			return _MindBlast;
 		end
 
@@ -138,10 +154,10 @@ function MaxDps.Priest.Shadow()
 		end
 
 		if vCharges > 20 and shadowF then
-			return _Shadowfiend;
+			return shadowFiend;
 		end
 
-		if not vt and currentSpell ~= 'Vampiric Touch' then
+		if not vt and not MaxDps:SameSpell(currentSpell, _VampiricTouch) then
 			return _VampiricTouch;
 		end
 
@@ -154,11 +170,11 @@ function MaxDps.Priest.Shadow()
 			return _VoidEruption;
 		end
 
-		if mb and currentSpell ~= 'Mind Blast' then
+		if mb and not MaxDps:SameSpell(currentSpell, _MindBlast) then
 			return _MindBlast;
 		end
 
-		if not vt and currentSpell ~= 'Vampiric Touch' then
+		if not vt and not MaxDps:SameSpell(currentSpell, _VampiricTouch) then
 			return _VampiricTouch;
 		end
 
@@ -167,5 +183,9 @@ function MaxDps.Priest.Shadow()
 		end
 	end
 
-	return _MindFlay;
+	if _isMindSpike then
+		return _MindSpike;
+	else
+		return _MindFlay;
+	end
 end
