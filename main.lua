@@ -79,19 +79,27 @@ function Priest:Shadow(timeShift, currentSpell, gcd, talents)
 
 	-- Rotation
 
-	if not vt and currentSpell ~= _VampiricTouch then
-		return _VampiricTouch;
-	end
-
-	if not talents[_Misery] and not swp then
-		return _ShadowWordPain;
+	if not InCombatLockdown() and MaxDps:SpellAvailable(_MindBlast, timeShift) and currentSpell ~= _MindBlast then
+		return _MindBlast
 	end
 
 	if not vf and (insa > 90 or (insa > 60 and talents[_LegacyoftheVoid])) then
 		return _VoidEruption;
 	end
 
-	if vf and MaxDps:SpellAvailable(_VoidBolt, timeShift + 0.2) then
+	if not vf and insa < 40 and MaxDps:SpellAvailable(_DarkAscension, timeShift) then
+		return _DarkAscension;
+	end
+
+	if talents[_DarkVoid] and MaxDps:SpellAvailable(_DarkVoid, timeShift) and currentSpell ~= _DarkVoid then
+		return _DarkVoid;
+	end
+
+	if talents[_ShadowCrash] and MaxDps:SpellAvailable(_ShadowCrash, timeShift) then
+		return _ShadowCrash;
+	end
+
+	if vf and MaxDps:SpellAvailable(_VoidBolt, timeShift + 0.4) then
 		return voidBolt;
 	end
 
@@ -104,6 +112,14 @@ function Priest:Shadow(timeShift, currentSpell, gcd, talents)
 		if MaxDps:SpellAvailable(_MindBlast, timeShift) and currentSpell ~= _MindBlast then
 			return _MindBlast;
 		end
+	end
+
+	if not vt and currentSpell ~= _VampiricTouch then
+		return _VampiricTouch;
+	end
+
+	if not talents[_Misery] and not swp and currentSpell ~= _DarkVoid then -- dark void applies SWP
+		return _ShadowWordPain;
 	end
 
 	if talents[_ShadowWordDeath] then
@@ -130,4 +146,3 @@ function Priest:Shadow(timeShift, currentSpell, gcd, talents)
 
 	return _MindFlay;
 end
-
