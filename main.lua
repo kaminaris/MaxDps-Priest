@@ -60,6 +60,7 @@ function Priest:Shadow(timeShift, currentSpell, gcd, talents)
 	if MaxDps:FindSpell(_VoidEruption) then
 		voidBolt = _VoidEruption;
 	end
+	local mindBlast = talents[_ShadowWordVoid] and _ShadowWordVoid or _MindBlast;
 
 	local swp, swpCd = MaxDps:TargetAura(_ShadowWordPain, timeShift + 4);
 	local vt, vtCd = MaxDps:TargetAura(_VampiricTouch, timeShift + 5);
@@ -79,15 +80,15 @@ function Priest:Shadow(timeShift, currentSpell, gcd, talents)
 
 	-- Rotation
 
-	if not InCombatLockdown() and MaxDps:SpellAvailable(_MindBlast, timeShift) and currentSpell ~= _MindBlast then
-		return _MindBlast
+	if not InCombatLockdown() and MaxDps:SpellAvailable(mindBlast, timeShift) and currentSpell ~= mindBlast then
+		return mindBlast;
 	end
 
 	if not vf and (insa > 90 or (insa > 60 and talents[_LegacyoftheVoid])) then
 		return _VoidEruption;
 	end
 
-	if not vf and insa < 40 and MaxDps:SpellAvailable(_DarkAscension, timeShift) then
+	if talents[_DarkAscension] and not vf and insa < 40 and MaxDps:SpellAvailable(_DarkAscension, timeShift) then
 		return _DarkAscension;
 	end
 
@@ -105,7 +106,7 @@ function Priest:Shadow(timeShift, currentSpell, gcd, talents)
 
 	if talents[_ShadowWordVoid] then
 		local swv, swvCharges = MaxDps:SpellCharges(_ShadowWordVoid, timeShift);
-		if swvCharges >= 1.5 and currentSpell ~= _ShadowWordVoid then
+		if swvCharges >= 1.3 and currentSpell ~= _ShadowWordVoid then
 			return _ShadowWordVoid;
 		end
 	else
