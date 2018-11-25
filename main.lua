@@ -164,7 +164,7 @@ function Priest:ShadowPrecombat()
 	local talents = fd.talents;
 
 	-- shadowform,if=!buff.shadowform.up;
-	if not buff[SH.Shadowform].up then
+	if not buff[SH.Shadowform].up and not buff[SH.Voidform].up then
 		return SH.Shadowform;
 	end
 
