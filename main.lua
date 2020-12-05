@@ -1,4 +1,4 @@
-﻿--- @type MaxDps
+--- @type MaxDps
 if not MaxDps then
 	return;
 end
@@ -28,7 +28,7 @@ local SH = {
 	DarkVoid = 263346,
 	SurrenderToMadness = 319952,
 	Mindbender = 200174,
-	Shadowfiend = 132603,
+	Shadowfiend = 34433,
 	ShadowCrash = 205385,
 	MindSear = 48045,
 	ShadowWordDeath = 32379,
@@ -38,7 +38,6 @@ local SH = {
 	Damnation = 341374,
 	DevouringPlague = 335467,
 	UnfurlingDarkness = 341282,
-	Voidling = 254232,
 	SearingNightmare = 341385
 };
 
@@ -193,19 +192,14 @@ function Priest:ShadowSingle()
 		return SH.ShadowWordPain;
 	end
 
-	if insanity >= 40 and cooldown[SH.VoidEruption].remains <= 3 and cooldown[SH.Voidling].ready and
+	if insanity >= 40 and cooldown[SH.VoidEruption].remains <= 3 and cooldown[SH.Shadowfiend].ready and
 		not talents[SH.Mindbender] then
-		return SH.Voidling;
+		return SH.Shadowfiend;
 	else
-		if insanity >= 40 and cooldown[SH.VoidEruption].remains <= 3 and cooldown[SH.Shadowfiend].ready and
-			not talents[SH.Mindbender] then
-			return SH.Shadowfiend;
+		if talents[SH.Mindbender] and insanity > 40 and cooldown[SH.VoidEruption].remains <= 3 and
+			cooldown[SH.Mindbender].ready then
+			return SH.Mindbender;
 		end
-	end
-
-	if talents[SH.Mindbender] and insanity > 40 and cooldown[SH.VoidEruption].remains <= 3 and
-		cooldown[SH.Mindbender].ready then
-		return SH.Mindbender;
 	end
 
 	if insanity > 40 and cooldown[SH.VoidEruption].ready and not buff[SH.Voidform].up then
