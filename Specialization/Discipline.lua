@@ -97,8 +97,8 @@ function Priest:Discipline()
     end
 
 	--Necrolord
-	if covenantId == CN.Necrolord and cooldown[DI.Necrolord].ready then
-        MaxDps:GlowCooldown(DI.Necrolord, cooldown[DI.Necrolord].ready);
+	if covenantId == CN.Necrolord and cooldown[DI.UnholyNova].ready then
+        MaxDps:GlowCooldown(DI.UnholyNova, cooldown[DI.UnholyNova].ready);
     end
 
 	if talents[DI.ShadowCovenant] and cooldown[DI.ShadowCovenant].ready then
