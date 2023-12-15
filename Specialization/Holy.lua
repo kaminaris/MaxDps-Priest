@@ -1,114 +1,119 @@
-local _, addonTable = ...;
 
-if not MaxDps then
-	return;
-end
+local _, addonTable = ...
 
-local Priest = addonTable.Priest;
-local MaxDps = MaxDps;
+--- @type MaxDps
+if not MaxDps then return end
 
-local HL = {
-	Smite = 585,
-	ShadowWordPain = 589,
-	HolyFire = 14914,
-	ShadowWordDeath = 32379,
-	PowerInfusion = 10060,
+local Priest = addonTable.Priest
+local MaxDps = MaxDps
+local UnitPower = UnitPower
+local UnitHealth = UnitHealth
+local UnitAura = UnitAura
+local GetSpellDescription = GetSpellDescription
+local UnitHealthMax = UnitHealthMax
+local UnitPowerMax = UnitPowerMax
+local PowerTypeMana = Enum.PowerType.Mana
 
-	--Talents
-	DivineStar = 110744,
-	Halo = 120517,
+local fd
+local cooldown
+local buff
+local debuff
+local talents
+local timetodie
+local targets
+local mana
+local manaMax
+local manaDeficit
+local insanity
+local targetHP
+local targetmaxHP
+local targethealthPerc
+local curentHP
+local maxHP
+local healthPerc
 
-	--Kyrian
-	BoonoftheAscended = 325013,
-
-	--NightFae
-	FaeGuardians = 327661,
-
-	--Venthyr
-	Mindgames = 323673,
-
-	--Necrolord
-	UnholyNova = 324724,
-
-};
-
-local CN = {
-	None      = 0,
-	Kyrian    = 1,
-	Venthyr   = 2,
-	NightFae  = 3,
-	Necrolord = 4
-};
-
-setmetatable(HL, Priest.spellMeta);
+local className, classFilename, classId = UnitClass('player')
+local currentSpec = GetSpecialization()
+local currentSpecName = currentSpec and select(2, GetSpecializationInfo(currentSpec)) or "None"
+local classtable
 
 function Priest:Holy()
-    local fd = MaxDps.FrameData;
-    local covenantId = fd.covenant.covenantId;
-    fd.targets = MaxDps:SmartAoe();
-    local cooldown = fd.cooldown;
-    local buff = fd.buff;
-    local debuff = fd.debuff;
-    local talents = fd.talents;
-    local targets = fd.targets;
-    local gcd = fd.gcd;
-    local targetHp = MaxDps:TargetPercentHealth() * 100;
-    local health = UnitHealth('player');
-    local healthMax = UnitHealthMax('player');
-    local healthPercent = ( health / healthMax ) * 100;
-
-    -- Essences
-    MaxDps:GlowEssences();
-
-	-- Cooldowns
-    MaxDps:GlowCooldown(HL.PowerInfusion, cooldown[HL.PowerInfusion].ready);
-
-	--talents
-
-	--Covenant
-    --Kyrian
-    if covenantId == CN.Kyrian and cooldown[HL.BoonoftheAscended].ready then
-        MaxDps:GlowCooldown(HL.BoonoftheAscended, cooldown[HL.BoonoftheAscended].ready);
+    fd = MaxDps.FrameData
+    cooldown = fd.cooldown
+    buff = fd.buff
+    debuff = fd.debuff
+    talents = fd.talents
+	timetodie = fd.timetodie or 0
+    targets = MaxDps:SmartAoe()
+    mana = UnitPower('player', PowerTypeMana)
+    manaMax = UnitPowerMax('player', PowerTypeMana)
+    manaDeficit = manaMax - mana
+    targetHP = UnitHealth('target')
+    targetmaxHP = UnitHealthMax('target')
+    targethealthPerc = (targetHP / targetmaxHP) * 100
+    curentHP = UnitHealth('player')
+    maxHP = UnitHealthMax('player')
+    healthPerc = (curentHP / maxHP) * 100
+    classtable = MaxDps.SpellTable
+    classtable.RhapsodyBuff = 390636
+	--setmetatable(classtable, Priest.spellMeta)
+    if targets >= 3  then
+        return Priest:HolyMultiTarget()
     end
+    return Priest:HolySingleTarget()
+end
 
-	--Venthyr
-    if covenantId == CN.Venthyr and cooldown[HL.Mindgames].ready then
-        MaxDps:GlowCooldown(HL.Mindgames, cooldown[HL.Mindgames].ready);
+--optional abilities list
+
+--Single-Target Rotation
+function Priest:HolySingleTarget()
+    --Holy Fire
+    if cooldown[classtable.HolyFire].ready then
+        return classtable.HolyFire
     end
-
-	--NightFae
-    if covenantId == CN.NightFae and cooldown[HL.FaeGuardians].ready then
-        MaxDps:GlowCooldown(HL.FaeGuardians, cooldown[HL.FaeGuardians].ready);
+    --Mindgames (if talented)
+    if talents[classtable.Mindgames] and cooldown[classtable.Mindgames].ready then
+        return classtable.Mindgames
     end
-
-	--Necrolord
-	if covenantId == CN.Necrolord and cooldown[HL.UnholyNova].ready then
-        MaxDps:GlowCooldown(HL.UnholyNova, cooldown[HL.UnholyNova].ready);
+    --Shadow Word: Pain (if the target will survive for the full duration)
+    if talents[classtable.ShadowWordPain] and debuff[classtable.ShadowWordPain].refreshable and timetodie >= 16 and cooldown[classtable.ShadowWordPain].ready then
+        return classtable.ShadowWordPain
     end
-
-
-	if talents[HL.DivineStar] and cooldown[HL.DivineStar].ready then
-        return HL.DivineStar;
+    --Holy Word: Chastise (if you do not need the incapacitate/stun for cc)
+    --Divine Star
+    if talents[classtable.DivineStar] and cooldown[classtable.DivineStar].ready then
+        return classtable.DivineStar
     end
-
-	if talents[HL.Halo] and cooldown[HL.Halo].ready then
-        return HL.Halo;
+    --Smite
+    if cooldown[classtable.Smite].ready then
+        return classtable.Smite
     end
+end
 
-	if targetHp <= 20 and cooldown[HL.ShadowWordDeath].ready then
-        return HL.ShadowWordDeath;
+--Multiple-Target Rotation
+function Priest:HolyMultiTarget()
+    --Divine Star
+    if talents[classtable.DivineStar] and cooldown[classtable.DivineStar].ready then
+        return classtable.DivineStar
     end
-
-	if debuff[HL.ShadowWordPain].refreshable and cooldown[HL.ShadowWordPain].ready then
-        return HL.ShadowWordPain;
+    --Holy Fire
+    if cooldown[classtable.HolyFire].ready then
+        return classtable.HolyFire
     end
-
-	if cooldown[HL.HolyFire].ready then
-        return HL.HolyFire;
+    --Mindgames (if talented)
+    if talents[classtable.Mindgames] and cooldown[classtable.Mindgames].ready then
+        return classtable.Mindgames
     end
-
-	if cooldown[HL.Smite].ready then
-        return HL.Smite;
+    --Holy Nova with 16+ stacks of Rhapsody
+    if talents[classtable.HolyNova] and buff[classtable.RhapsodyBuff].count >= 16 and cooldown[classtable.HolyNova].ready then
+        return classtable.HolyNova
     end
-
+    --Shadow Word: Pain (if the target will survive for the full duration)
+    if talents[classtable.ShadowWordPain] and debuff[classtable.ShadowWordPain].refreshable and timetodie >= 16 and cooldown[classtable.ShadowWordPain].ready then
+        return classtable.ShadowWordPain
+    end
+    --Holy Nova
+    if talents[classtable.HolyNova] and cooldown[classtable.HolyNova].ready then
+        return classtable.HolyNova
+    end
 end

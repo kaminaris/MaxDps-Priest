@@ -1,148 +1,130 @@
-local _, addonTable = ...;
 
-if not MaxDps then
-	return;
-end
+local _, addonTable = ...
 
-local Priest = addonTable.Priest;
-local MaxDps = MaxDps;
+--- @type MaxDps
+if not MaxDps then return end
 
-local DI = {
-	Smite = 585,
-	Penance = 47540,
-	MindBlast = 8092,
-	MindSear = 48045,
-	ShadowWordDeath = 32379,
-	Shadowfiend = 34433,
-	PowerInfusion = 10060,
-	PurgetheWickedDebuff = 204213,
+local Priest = addonTable.Priest
+local MaxDps = MaxDps
+local UnitPower = UnitPower
+local UnitHealth = UnitHealth
+local UnitAura = UnitAura
+local GetSpellDescription = GetSpellDescription
+local UnitHealthMax = UnitHealthMax
+local UnitPowerMax = UnitPowerMax
+local PowerTypeMana = Enum.PowerType.Mana
 
-	--Talents
-	Schism = 214621,
-	Mindbender = 123040,
-	PowerWordSolace = 129250,
-	ShadowCovenant = 314867,
-	PurgetheWicked = 204197,
-	DivineStar = 110744,
-	Halo = 120517,
+local fd
+local cooldown
+local buff
+local debuff
+local talents
+local timetodie
+local targets
+local mana
+local manaMax
+local manaDeficit
+local insanity
+local targetHP
+local targetmaxHP
+local targethealthPerc
+local curentHP
+local maxHP
+local healthPerc
 
-	--Kyrian
-	BoonoftheAscended = 325013,
-
-	--NightFae
-	FaeGuardians = 327661,
-
-	--Venthyr
-	Mindgames = 323673,
-
-	--Necrolord
-	UnholyNova = 324724,
-
-};
-
-local CN = {
-	None      = 0,
-	Kyrian    = 1,
-	Venthyr   = 2,
-	NightFae  = 3,
-	Necrolord = 4
-};
-
-setmetatable(DI, Priest.spellMeta);
+local className, classFilename, classId = UnitClass('player')
+local currentSpec = GetSpecialization()
+local currentSpecName = currentSpec and select(2, GetSpecializationInfo(currentSpec)) or "None"
+local classtable
 
 function Priest:Discipline()
-    local fd = MaxDps.FrameData;
-    local covenantId = fd.covenant.covenantId;
-    fd.targets = MaxDps:SmartAoe();
-    local cooldown = fd.cooldown;
-    local buff = fd.buff;
-    local debuff = fd.debuff;
-    local talents = fd.talents;
-    local targets = fd.targets;
-    local gcd = fd.gcd;
-    local targetHp = MaxDps:TargetPercentHealth() * 100;
-    local health = UnitHealth('player');
-    local healthMax = UnitHealthMax('player');
-    local healthPercent = ( health / healthMax ) * 100;
-
-    -- Essences
-    MaxDps:GlowEssences();
-
-	-- Cooldowns
-    MaxDps:GlowCooldown(DI.PowerInfusion, cooldown[DI.PowerInfusion].ready);
-	if not talents[DI.Mindbender] and cooldown[DI.Shadowfiend].ready then
-        MaxDps:GlowCooldown(DI.Shadowfiend, cooldown[DI.Shadowfiend].ready);
-    end
-
-
-	--talents
-	if talents[DI.Mindbender] and cooldown[DI.Mindbender].ready then
-        MaxDps:GlowCooldown(DI.Mindbender, cooldown[DI.Mindbender].ready);
-    end
-
-	--Covenant
-    --Kyrian
-    if covenantId == CN.Kyrian and cooldown[DI.BoonoftheAscended].ready then
-        MaxDps:GlowCooldown(DI.BoonoftheAscended, cooldown[DI.BoonoftheAscended].ready);
-    end
-
-	--Venthyr
-    if covenantId == CN.Venthyr and cooldown[DI.Mindgames].ready then
-        MaxDps:GlowCooldown(DI.Mindgames, cooldown[DI.Mindgames].ready);
-    end
-
-	--NightFae
-    if covenantId == CN.NightFae and cooldown[DI.FaeGuardians].ready then
-        MaxDps:GlowCooldown(DI.FaeGuardians, cooldown[DI.FaeGuardians].ready);
-    end
-
-	--Necrolord
-	if covenantId == CN.Necrolord and cooldown[DI.Necrolord].ready then
-        MaxDps:GlowCooldown(DI.Necrolord, cooldown[DI.Necrolord].ready);
-    end
-
-	if talents[DI.ShadowCovenant] and cooldown[DI.ShadowCovenant].ready then
-        return DI.ShadowCovenant;
-    end
-
-	if talents[DI.Schism] and cooldown[DI.Schism].ready then
-        return DI.Schism;
-    end
-
-	if targetHp <= 20 and cooldown[DI.ShadowWordDeath].ready then
-        return DI.ShadowWordDeath;
-    end
-
-	if talents[DI.PurgetheWicked] and debuff[DI.PurgetheWickedDebuff].refreshable and cooldown[DI.PurgetheWicked].ready then
-        return DI.PurgetheWicked;
-    end
-
-	if talents[DI.DivineStar] and cooldown[DI.DivineStar].ready then
-        return DI.DivineStar;
-    end
-
-	if talents[DI.Halo] and cooldown[DI.Halo].ready then
-        return DI.Halo;
-    end
-
-	if talents[DI.PowerWordSolace] and cooldown[DI.PowerWordSolace].ready then
-        return DI.PowerWordSolace;
-    end
-
-	if cooldown[DI.Penance].ready then
-        return DI.Penance;
-    end
-
-	if cooldown[DI.MindBlast].ready then
-        return DI.MindBlast;
-    end
-
-	if targets >= 2 and cooldown[DI.MindSear].ready then
-		return DI.MindSear;
+    fd = MaxDps.FrameData
+    cooldown = fd.cooldown
+    buff = fd.buff
+    debuff = fd.debuff
+    talents = fd.talents
+	timetodie = fd.timetodie or 0
+    targets = MaxDps:SmartAoe()
+    mana = UnitPower('player', PowerTypeMana)
+    manaMax = UnitPowerMax('player', PowerTypeMana)
+    manaDeficit = manaMax - mana
+    targetHP = UnitHealth('target')
+    targetmaxHP = UnitHealthMax('target')
+    targethealthPerc = (targetHP / targetmaxHP) * 100
+    curentHP = UnitHealth('player')
+    maxHP = UnitHealthMax('player')
+    healthPerc = (curentHP / maxHP) * 100
+    classtable = MaxDps.SpellTable
+    classtable.PurgetheWickedDot = 204213
+    if talents[classtable.UltimatePenitence] then
+		MaxDps:GlowCooldown(classtable.UltimatePenitence, cooldown[classtable.UltimatePenitence].ready)
 	end
-
-	if cooldown[DI.Smite].ready then
-        return DI.Smite;
+    if talents[classtable.Shadowfiend] then
+		MaxDps:GlowCooldown(classtable.Shadowfiend, cooldown[classtable.Shadowfiend].ready)
+	end
+	--setmetatable(classtable, Priest.spellMeta)
+    if targets > 1  then
+        return Priest:DisciplineMultiTarget()
     end
+    return Priest:DisciplineSingleTarget()
+end
 
+--optional abilities list
+
+--Single-Target Rotation
+function Priest:DisciplineSingleTarget()
+    if talents[classtable.PurgetheWicked] and debuff[classtable.PurgetheWickedDot].refreshable and cooldown[classtable.PurgetheWicked].ready then
+        return classtable.PurgetheWicked
+    end
+    if not talents[classtable.PurgetheWicked] and debuff[classtable.ShadowWordPain].refreshable and cooldown[classtable.ShadowWordPain].ready then
+        return classtable.ShadowWordPain
+    end
+    --Mindgames (if talented)
+    if talents[classtable.Mindgames] and cooldown[classtable.Mindgames].ready then
+        return classtable.Mindgames
+    end
+    if cooldown[classtable.Penance].ready then
+        return classtable.Penance
+    end
+    if cooldown[classtable.MindBlast].ready then
+        return classtable.MindBlast
+    end
+    if talents[classtable.DivineStar] and cooldown[classtable.DivineStar].ready then
+        return classtable.DivineStar
+    end
+    if talents[classtable.Halo] and cooldown[classtable.Halo].ready then
+        return classtable.Halo
+    end
+    if cooldown[classtable.Smite].ready then
+        return classtable.Smite
+    end
+end
+
+--Multiple-Target Rotation
+function Priest:DisciplineMultiTarget()
+    if talents[classtable.PurgetheWicked] and debuff[classtable.PurgetheWickedDot].refreshable and cooldown[classtable.PurgetheWicked].ready then
+        return classtable.PurgetheWicked
+    end
+    if not talents[classtable.PurgetheWicked] and debuff[classtable.ShadowWordPain].refreshable and cooldown[classtable.ShadowWordPain].ready then
+        return classtable.ShadowWordPain
+    end
+    --Mindgames (if talented)
+    if talents[classtable.Mindgames] and cooldown[classtable.Mindgames].ready then
+        return classtable.Mindgames
+    end
+    if cooldown[classtable.Penance].ready then
+        return classtable.Penance
+    end
+    if cooldown[classtable.MindBlast].ready then
+        return classtable.MindBlast
+    end
+    if talents[classtable.DivineStar] and cooldown[classtable.DivineStar].ready then
+        return classtable.DivineStar
+    end
+    if talents[classtable.Halo] and cooldown[classtable.Halo].ready then
+        return classtable.Halo
+    end
+    if cooldown[classtable.Smite].ready then
+        return classtable.Smite
+    end
 end
