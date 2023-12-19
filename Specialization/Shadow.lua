@@ -101,7 +101,7 @@ function Priest:ShadowSingleTarget()
 		return classtable.DevouringPlague
 	end
 	--Cast Shadow Word: Death if Mindbender is active with the Priest Shadow 10.2 Class Set 2pc or you have the Priest Shadow 10.2 Class Set 4pc regardless of the state of Mindbender.
-    if talents[classtable.ShadowWordDeath] and (talents[classtable.Mindbender] and cooldown[classtable.Mindbender].duration >= 45 and (MaxDps.Tier and MaxDps.Tier[31].count >= 2) or (talents[classtable.Mindbender] and MaxDps.Tier and MaxDps.Tier[31].count >= 4)) and cooldown[classtable.ShadowWordDeath].ready then
+    if talents[classtable.ShadowWordDeath] and (talents[classtable.Mindbender] and cooldown[classtable.Mindbender].duration >= 45 and (MaxDps.tier and MaxDps.tier[31].count >= 2) or (talents[classtable.Mindbender] and MaxDps.tier and MaxDps.tier[31].count >= 4)) and cooldown[classtable.ShadowWordDeath].ready then
         return classtable.ShadowWordDeath
     end
 	--Cast Mind Blast if Mindbender is active and you are capped on charges or will cap charges soon. Cast at high priority if Mindbender will expire otherwise (2 seconds or less).
@@ -113,15 +113,15 @@ function Priest:ShadowSingleTarget()
         return classtable.VoidBolt
     end
 	--Cast Shadow Word: Death if still available and you have the Priest Shadow 10.2 Class Set 2pc equipped.
-    if talents[classtable.ShadowWordDeath] and MaxDps.Tier and MaxDps.Tier[31].count >= 2 and cooldown[classtable.ShadowWordDeath].ready then
+    if talents[classtable.ShadowWordDeath] and MaxDps.tier and MaxDps.tier[31].count >= 2 and cooldown[classtable.ShadowWordDeath].ready then
         return classtable.ShadowWordDeath
     end
 	--Cast Shadow Crash with the Priest Shadow 10.2 Class Set 4pc if you have 10 or more stacks of Death's Torment and you are not holding for upcoming adds.
-    if talents[classtable.ShadowCrash] and MaxDps.Tier and MaxDps.Tier[31].count >= 4 and buff[classtable.DeathsTorment].count >= 10 and cooldown[classtable.ShadowCrash].ready then
+    if talents[classtable.ShadowCrash] and MaxDps.tier and MaxDps.tier[31].count >= 4 and buff[classtable.DeathsTorment].count >= 10 and cooldown[classtable.ShadowCrash].ready then
         return classtable.ShadowCrash
     end
 	--Cast Shadow Word: Pain with the Priest Shadow 10.2 Class Set 4pc if you have 10 or more stacks of Death's Torment and Shadow Crash is unavailable, and you are not holding for adds.
-    if MaxDps.Tier and MaxDps.Tier[31].count >= 4 and buff[classtable.DeathsTorment].count >= 10 and not cooldown[classtable.ShadowCrash].ready and cooldown[classtable.ShadowWordPain].ready then
+    if MaxDps.tier and MaxDps.tier[31].count >= 4 and buff[classtable.DeathsTorment].count >= 10 and not cooldown[classtable.ShadowCrash].ready and cooldown[classtable.ShadowWordPain].ready then
         return classtable.ShadowWordPain
     end
 	--Cast Mind Blast if Mind Devourer is not active.
