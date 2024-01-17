@@ -18,13 +18,13 @@ Priest.spellMeta = {
 function Priest:Enable()
 	if MaxDps.Spec == 1 then
 		MaxDps.NextSpell = Priest.Discipline
-		MaxDps:Print(MaxDps.Colors.Info .. 'Priest - Discipline')
+		MaxDps:Print(MaxDps.Colors.Info .. 'Priest - Discipline', "info")
 	elseif MaxDps.Spec == 2 then
 		MaxDps.NextSpell = Priest.Holy
-		MaxDps:Print(MaxDps.Colors.Info .. 'Priest - Holy')
+		MaxDps:Print(MaxDps.Colors.Info .. 'Priest - Holy', "info")
 	elseif MaxDps.Spec == 3 then
 		MaxDps.NextSpell = Priest.Shadow
-		MaxDps:Print(MaxDps.Colors.Info .. 'Priest - Shadow')
+		MaxDps:Print(MaxDps.Colors.Info .. 'Priest - Shadow', "info")
 	end
 
 	return true
