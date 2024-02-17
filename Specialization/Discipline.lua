@@ -56,11 +56,18 @@ function Priest:Discipline()
     healthPerc = (curentHP / maxHP) * 100
     classtable = MaxDps.SpellTable
     classtable.PurgetheWickedDot = 204213
+    classtable.ShadowCovenantBuff = 322105
+    classtable.DarkReprimand = 400169
+    classtable.HaloShadow = 102644
+    classtable.DivineStarShadow = 122121
     if talents[classtable.UltimatePenitence] then
 		MaxDps:GlowCooldown(classtable.UltimatePenitence, cooldown[classtable.UltimatePenitence].ready)
 	end
     if talents[classtable.Shadowfiend] then
 		MaxDps:GlowCooldown(classtable.Shadowfiend, cooldown[classtable.Shadowfiend].ready)
+	end
+    if talents[classtable.Mindbender] then
+		MaxDps:GlowCooldown(classtable.Mindbender, cooldown[classtable.Mindbender].ready)
 	end
 	--setmetatable(classtable, Priest.spellMeta)
     if targets > 1  then
@@ -83,17 +90,26 @@ function Priest:DisciplineSingleTarget()
     if talents[classtable.Mindgames] and cooldown[classtable.Mindgames].ready then
         return classtable.Mindgames
     end
-    if cooldown[classtable.Penance].ready then
+    if not buff[classtable.ShadowCovenantBuff].up and cooldown[classtable.Penance].ready then
         return classtable.Penance
+    end
+    if buff[classtable.ShadowCovenantBuff].up and cooldown[classtable.DarkReprimand].ready then
+        return classtable.DarkReprimand
     end
     if cooldown[classtable.MindBlast].ready then
         return classtable.MindBlast
     end
-    if talents[classtable.DivineStar] and cooldown[classtable.DivineStar].ready then
+    if talents[classtable.DivineStar] and not buff[classtable.ShadowCovenantBuff].up and cooldown[classtable.DivineStar].ready then
         return classtable.DivineStar
     end
-    if talents[classtable.Halo] and cooldown[classtable.Halo].ready then
+    if talents[classtable.DivineStar] and buff[classtable.ShadowCovenantBuff].up and cooldown[classtable.DivineStarShadow].ready then
+        return classtable.DivineStarShadow
+    end
+    if talents[classtable.Halo] and not buff[classtable.ShadowCovenantBuff].up and cooldown[classtable.Halo].ready then
         return classtable.Halo
+    end
+    if talents[classtable.Halo] and buff[classtable.ShadowCovenantBuff].up and cooldown[classtable.HaloShadow].ready then
+        return classtable.HaloShadow
     end
     if cooldown[classtable.Smite].ready then
         return classtable.Smite
@@ -112,17 +128,26 @@ function Priest:DisciplineMultiTarget()
     if talents[classtable.Mindgames] and cooldown[classtable.Mindgames].ready then
         return classtable.Mindgames
     end
-    if cooldown[classtable.Penance].ready then
+    if not buff[classtable.ShadowCovenantBuff].up and cooldown[classtable.Penance].ready then
         return classtable.Penance
+    end
+    if buff[classtable.ShadowCovenantBuff].up and cooldown[classtable.DarkReprimand].ready then
+        return classtable.DarkReprimand
     end
     if cooldown[classtable.MindBlast].ready then
         return classtable.MindBlast
     end
-    if talents[classtable.DivineStar] and cooldown[classtable.DivineStar].ready then
+    if talents[classtable.DivineStar] and not buff[classtable.ShadowCovenantBuff].up and cooldown[classtable.DivineStar].ready then
         return classtable.DivineStar
     end
-    if talents[classtable.Halo] and cooldown[classtable.Halo].ready then
+    if talents[classtable.DivineStar] and buff[classtable.ShadowCovenantBuff].up and cooldown[classtable.DivineStarShadow].ready then
+        return classtable.DivineStarShadow
+    end
+    if talents[classtable.Halo] and not buff[classtable.ShadowCovenantBuff].up and cooldown[classtable.Halo].ready then
         return classtable.Halo
+    end
+    if talents[classtable.Halo] and buff[classtable.ShadowCovenantBuff].up and cooldown[classtable.HaloShadow].ready then
+        return classtable.HaloShadow
     end
     if cooldown[classtable.Smite].ready then
         return classtable.Smite
