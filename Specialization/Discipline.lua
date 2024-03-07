@@ -58,7 +58,7 @@ function Priest:Discipline()
     classtable.PurgetheWickedDot = 204213
     classtable.ShadowCovenantBuff = 322105
     classtable.DarkReprimand = 400169
-    classtable.HaloShadow = 102644
+    classtable.HaloShadow = 120644
     classtable.DivineStarShadow = 122121
     if talents[classtable.UltimatePenitence] then
 		MaxDps:GlowCooldown(classtable.UltimatePenitence, cooldown[classtable.UltimatePenitence].ready)
