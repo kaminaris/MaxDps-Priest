@@ -408,7 +408,7 @@ function Priest:Shadow()
     buff = fd.buff
     debuff = fd.debuff
     talents = fd.talents
-    targets = 5--MaxDps:SmartAoe()
+    targets = MaxDps:SmartAoe()
     Mana = UnitPower('player', ManaPT)
     ManaMax = UnitPowerMax('player', ManaPT)
     ManaDeficit = ManaMax - Mana
