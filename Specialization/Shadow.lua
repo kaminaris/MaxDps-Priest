@@ -93,7 +93,7 @@ end
 local function CheckEquipped(checkName)
     for i=1,14 do
         local itemID = GetInventoryItemID('player', i)
-        local itemName = itemID and GetItemInfo(itemID) or ''
+        local itemName = itemID and C_Item.GetItemInfo(itemID) or ''
         if checkName == itemName then
             return true
         end
@@ -113,7 +113,7 @@ local function CheckTrinketNames(checkName)
     --end
     for i=13,14 do
         local itemID = GetInventoryItemID('player', i)
-        local itemName = GetItemInfo(itemID)
+        local itemName = C_Item.GetItemInfo(itemID)
         if checkName == itemName then
             return true
         end
@@ -131,19 +131,19 @@ local function CheckTrinketCooldown(slot)
     end
     if slot == 13 or slot == 14 then
         local itemID = GetInventoryItemID('player', slot)
-        local _, duration, _ = GetItemCooldown(itemID)
+        local _, duration, _ = C_Item.GetItemCooldown(itemID)
         if duration == 0 then return true else return false end
     else
         local tOneitemID = GetInventoryItemID('player', 13)
         local tTwoitemID = GetInventoryItemID('player', 14)
-        local tOneitemName = GetItemInfo(tOneitemID)
-        local tTwoitemName = GetItemInfo(tTwoitemID)
+        local tOneitemName = C_Item.GetItemInfo(tOneitemID)
+        local tTwoitemName = C_Item.GetItemInfo(tTwoitemID)
         if tOneitemName == slot then
-            local _, duration, _ = GetItemCooldown(tOneitemID)
+            local _, duration, _ = C_Item.GetItemCooldown(tOneitemID)
             if duration == 0 then return true else return false end
         end
         if tTwoitemName == slot then
-            local _, duration, _ = GetItemCooldown(tTwoitemID)
+            local _, duration, _ = C_Item.GetItemCooldown(tTwoitemID)
             if duration == 0 then return true else return false end
         end
     end
