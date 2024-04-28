@@ -204,7 +204,7 @@ function Shadow:aoe()
     if (MaxDps:FindSpell(classtable.Mindbender) and CheckSpellCosts(classtable.Mindbender, 'Mindbender')) and (( debuff[classtable.ShadowWordPainDeBuff].up and dots_up or (select(2,GetSpellCooldown(classtable.ShadowCrash)) >=5 ) and talents[classtable.WhisperingShadows] ) and ( ttd <30 or ttd >15 ) and ( not talents[classtable.DarkAscension] or cooldown[classtable.DarkAscension].remains <gcd or ttd <15 )) and cooldown[classtable.Mindbender].ready then
         return classtable.Mindbender
     end
-    if (MaxDps:FindSpell(classtable.DevouringPlague) and CheckSpellCosts(classtable.DevouringPlague, 'DevouringPlague')) and (talents[classtable.DistortedReality] and ( debuff[classtable.DevouringPlague].count == 0 or InsanityDeficit <= 20 ) and ttd * ( not debuff[classtable.DevouringPlagueDeBuff].up )) and cooldown[classtable.DevouringPlague].ready then
+    if (MaxDps:FindSpell(classtable.DevouringPlague) and CheckSpellCosts(classtable.DevouringPlague, 'DevouringPlague')) and (talents[classtable.DistortedReality] and ( debuff[classtable.DevouringPlague].count == 0 or InsanityDeficit <= 20 ) and ( not debuff[classtable.DevouringPlagueDeBuff].up )) and cooldown[classtable.DevouringPlague].ready then
         return classtable.DevouringPlague
     end
     if (MaxDps:FindSpell(classtable.ShadowWordDeath) and CheckSpellCosts(classtable.ShadowWordDeath, 'ShadowWordDeath')) and (( (MaxDps.tier and MaxDps.tier[31].count >= 4) or ( UnitExists('pet') and UnitName('pet')  == 'fiend' ) and talents[classtable.InescapableTorment] and (MaxDps.tier and MaxDps.tier[31].count >= 2) ) and debuff[classtable.DevouringPlagueDeBuff].remains) and cooldown[classtable.ShadowWordDeath].ready then
@@ -219,7 +219,7 @@ function Shadow:aoe()
     if (MaxDps:FindSpell(classtable.VoidBolt) and CheckSpellCosts(classtable.VoidBolt, 'VoidBolt')) and cooldown[classtable.VoidBolt].ready then
         return classtable.VoidBolt
     end
-    if (MaxDps:FindSpell(classtable.DevouringPlague) and CheckSpellCosts(classtable.DevouringPlague, 'DevouringPlague')) and (talents[classtable.DistortedReality] and ttd * ( not debuff[classtable.DevouringPlagueDeBuff].up )) and cooldown[classtable.DevouringPlague].ready then
+    if (MaxDps:FindSpell(classtable.DevouringPlague) and CheckSpellCosts(classtable.DevouringPlague, 'DevouringPlague')) and (talents[classtable.DistortedReality] and ( not debuff[classtable.DevouringPlagueDeBuff].up )) and cooldown[classtable.DevouringPlague].ready then
         return classtable.DevouringPlague
     end
     if (MaxDps:FindSpell(classtable.DevouringPlague) and CheckSpellCosts(classtable.DevouringPlague, 'DevouringPlague')) and (( debuff[classtable.DevouringPlague].remains <= gcd and not pool_for_cds or InsanityDeficit <= 20 or buff[classtable.VoidformBuff].up and cooldown[classtable.VoidBolt].remains >buff[classtable.VoidformBuff].remains and cooldown[classtable.VoidBolt].remains <= buff[classtable.VoidformBuff].remains + 2 ) and not talents[classtable.DistortedReality]) and cooldown[classtable.DevouringPlague].ready then
