@@ -6,6 +6,7 @@
 ## LoadOnDemand: 1
 ## X-Curse-Project-ID: 98744
 ## X-WoWI-ID: 24648
+## X-Wago-ID: qGZRbvGd
 
 Main.lua
 Specialization/Discipline.lua
