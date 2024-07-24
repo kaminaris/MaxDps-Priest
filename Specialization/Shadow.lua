@@ -5,7 +5,7 @@ if not MaxDps then return end
 
 local UnitPower = UnitPower
 local UnitHealth = UnitHealth
-local UnitAura = UnitAura
+local UnitAura = C_UnitAuras.GetAuraDataByIndex
 local GetSpellDescription = GetSpellDescription
 local GetSpellPowerCost = C_Spell.GetSpellPowerCost
 local UnitHealthMax = UnitHealthMax
@@ -211,7 +211,7 @@ function Shadow:aoe()
     if (MaxDps:FindSpell(classtable.ShadowWordDeath) and CheckSpellCosts(classtable.ShadowWordDeath, 'ShadowWordDeath')) and (( (MaxDps.tier and MaxDps.tier[31].count >= 4) or ( UnitExists('pet') and UnitName('pet')  == 'fiend' ) and talents[classtable.InescapableTorment] and (MaxDps.tier and MaxDps.tier[31].count >= 2) ) and debuff[classtable.DevouringPlagueDeBuff].remains) and cooldown[classtable.ShadowWordDeath].ready then
         return classtable.ShadowWordDeath
     end
-    if (MaxDps:FindSpell(classtable.MindBlast) and CheckSpellCosts(classtable.MindBlast, 'MindBlast')) and (( cooldown[classtable.MindBlast].fullRecharge <= gcd + select(4,GetSpellInfo(classtable.MindBlast))  /1000 or GetTotemDuration('fiend') <= select(4,GetSpellInfo(classtable.MindBlast))  /1000 + gcd ) and ( UnitExists('pet') and UnitName('pet')  == 'fiend' ) and talents[classtable.InescapableTorment] and GetTotemDuration('fiend') >select(4,GetSpellInfo(classtable.MindBlast))  /1000 and targets <= 7 and not buff[classtable.MindDevourerBuff].up and debuff[classtable.DevouringPlagueDeBuff].remains >MaxDps:GetTimeToPct(30) and debuff[classtable.DevouringPlagueDeBuff].remains) and cooldown[classtable.MindBlast].ready then
+    if (MaxDps:FindSpell(classtable.MindBlast) and CheckSpellCosts(classtable.MindBlast, 'MindBlast')) and (( cooldown[classtable.MindBlast].fullRecharge <= gcd + GetSpellInfo(classtable.MindBlast).castTime   /1000 or GetTotemDuration('fiend') <= GetSpellInfo(classtable.MindBlast).castTime   /1000 + gcd ) and ( UnitExists('pet') and UnitName('pet')  == 'fiend' ) and talents[classtable.InescapableTorment] and GetTotemDuration('fiend') >GetSpellInfo(classtable.MindBlast).castTime   /1000 and targets <= 7 and not buff[classtable.MindDevourerBuff].up and debuff[classtable.DevouringPlagueDeBuff].remains >MaxDps:GetTimeToPct(30) and debuff[classtable.DevouringPlagueDeBuff].remains) and cooldown[classtable.MindBlast].ready then
         return classtable.MindBlast
     end
     if (MaxDps:FindSpell(classtable.ShadowWordDeath) and CheckSpellCosts(classtable.ShadowWordDeath, 'ShadowWordDeath')) and (GetTotemDuration('fiend') <= 2 and ( UnitExists('pet') and UnitName('pet')  == 'fiend' ) and talents[classtable.InescapableTorment] and targets <= 7 and debuff[classtable.DevouringPlagueDeBuff].remains) and cooldown[classtable.ShadowWordDeath].ready then
@@ -302,7 +302,7 @@ function Shadow:filler()
     if (MaxDps:FindSpell(classtable.ShadowWordDeath) and CheckSpellCosts(classtable.ShadowWordDeath, 'ShadowWordDeath')) and (targetHP <20 or ( buff[classtable.DeathspeakerBuff].up or (MaxDps.tier and MaxDps.tier[31].count >= 2) ) and debuff[classtable.DevouringPlagueDeBuff].up) and cooldown[classtable.ShadowWordDeath].ready then
         return classtable.ShadowWordDeath
     end
-    if (MaxDps:FindSpell(classtable.MindSpikeInsanity) and CheckSpellCosts(classtable.MindSpikeInsanity, 'MindSpikeInsanity')) and (debuff[classtable.DevouringPlagueDeBuff].remains >( select(4,GetSpellInfo(classtable.MindSpikeInsanity)) /1000) and debuff[classtable.DevouringPlagueDeBuff].remains) and cooldown[classtable.MindSpikeInsanity].ready then
+    if (MaxDps:FindSpell(classtable.MindSpikeInsanity) and CheckSpellCosts(classtable.MindSpikeInsanity, 'MindSpikeInsanity')) and (debuff[classtable.DevouringPlagueDeBuff].remains >( GetSpellInfo(classtable.MindSpikeInsanity).castTime  /1000) and debuff[classtable.DevouringPlagueDeBuff].remains) and cooldown[classtable.MindSpikeInsanity].ready then
         return classtable.MindSpikeInsanity
     end
     if (MaxDps:FindSpell(classtable.MindFlayInsanity) and CheckSpellCosts(classtable.MindFlayInsanity, 'MindFlayInsanity')) and (buff[classtable.MindFlayInsanityBuff].up and debuff[classtable.DevouringPlagueDeBuff].remains) and cooldown[classtable.MindFlayInsanity].ready then
@@ -368,7 +368,7 @@ function Shadow:main()
     if (MaxDps:FindSpell(classtable.VoidBolt) and CheckSpellCosts(classtable.VoidBolt, 'VoidBolt')) and (dots_up) and cooldown[classtable.VoidBolt].ready then
         return classtable.VoidBolt
     end
-    if (MaxDps:FindSpell(classtable.DevouringPlague) and CheckSpellCosts(classtable.DevouringPlague, 'DevouringPlague')) and (ttd <= ( select(4,GetSpellInfo(classtable.DevouringPlague)) /1000 ) + 4) and cooldown[classtable.DevouringPlague].ready then
+    if (MaxDps:FindSpell(classtable.DevouringPlague) and CheckSpellCosts(classtable.DevouringPlague, 'DevouringPlague')) and (ttd <= ( GetSpellInfo(classtable.DevouringPlague).castTime  /1000 ) + 4) and cooldown[classtable.DevouringPlague].ready then
         return classtable.DevouringPlague
     end
     if (MaxDps:FindSpell(classtable.DevouringPlague) and CheckSpellCosts(classtable.DevouringPlague, 'DevouringPlague')) and (( debuff[classtable.DevouringPlague].remains <= gcd or debuff[classtable.DevouringPlague].remains <3 and cooldown[classtable.VoidTorrent].up ) or InsanityDeficit <= 20 or buff[classtable.VoidformBuff].up and cooldown[classtable.VoidBolt].remains >buff[classtable.VoidformBuff].remains and cooldown[classtable.VoidBolt].remains <= buff[classtable.VoidformBuff].remains + 2 or buff[classtable.MindDevourerBuff].up and debuff[classtable.DevouringPlague].remains <1.2 and not talents[classtable.DistortedReality] or targets == 1 or debuff[classtable.DevouringPlague].remains <= gcd) and cooldown[classtable.DevouringPlague].ready then
