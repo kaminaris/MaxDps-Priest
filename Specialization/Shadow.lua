@@ -187,7 +187,7 @@ end
 local function GetTotemDuration(name)
     for index=1,MAX_TOTEMS do
         local arg1, totemName, startTime, duration, icon = GetTotemInfo(index)
-        local est_dur = round(startTime+duration-GetTime())
+        local est_dur = math.floor(startTime+duration-GetTime())
         if (totemName == name and est_dur and est_dur > 0) then return est_dur else return 0 end
     end
 end
