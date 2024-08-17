@@ -430,7 +430,7 @@ end
 
 function Shadow:callaction()
     if (MaxDps:FindSpell(classtable.Silence) and CheckSpellCosts(classtable.Silence, 'Silence')) and cooldown[classtable.Silence].ready then
-        MaxDps:GlowCooldown(classtable.Silence, select(8,UnitCastingInfo('target') == false) and cooldown[classtable.Silence].ready)
+        MaxDps:GlowCooldown(classtable.Silence, ( select(8,UnitCastingInfo('target')) ~= nil and not select(8,UnitCastingInfo('target')) or select(7,UnitChannelInfo('target')) ~= nil and not select(7,UnitChannelInfo('target'))) )
     end
     holding_crash = math.huge <15
     pool_for_cds = ( cooldown[classtable.VoidEruption].remains <= gcd * 3 and talents[classtable.VoidEruption] or cooldown[classtable.DarkAscension].ready and talents[classtable.DarkAscension] ) or talents[classtable.VoidTorrent] and talents[classtable.PsychicLink] and cooldown[classtable.VoidTorrent].remains <= 4 and ( (targets <2) and targets >1 or math.huge <= 5 or targets >= 6 and not holding_crash ) and not buff[classtable.VoidformBuff].up
