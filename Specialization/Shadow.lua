@@ -208,6 +208,23 @@ local function CheckPrevSpell(spell)
 end
 
 
+local function boss()
+    if UnitExists('boss1')
+    or UnitExists('boss2')
+    or UnitExists('boss3')
+    or UnitExists('boss4')
+    or UnitExists('boss5')
+    or UnitExists('boss6')
+    or UnitExists('boss7')
+    or UnitExists('boss8')
+    or UnitExists('boss9')
+    or UnitExists('boss10') then
+        return true
+    end
+    return false
+end
+
+
 function Shadow:precombat()
     --if (MaxDps:FindSpell(classtable.Shadowform) and CheckSpellCosts(classtable.Shadowform, 'Shadowform')) and (not buff[classtable.ShadowformBuff].up) and cooldown[classtable.Shadowform].ready then
     --    return classtable.Shadowform
@@ -245,13 +262,13 @@ function Shadow:main()
     else
         pooling_mindblasts = 0
     end
-    if (ttd >15 and ( not holding_crash or targets >2 )) then
+    if (boss and ttd <30 or ttd >15 and ( not holding_crash or targets >2 )) then
         local cdsCheck = Shadow:cds()
         if cdsCheck then
             return Shadow:cds()
         end
     end
-    if (MaxDps:FindSpell(classtable.Mindbender) and CheckSpellCosts(classtable.Mindbender, 'Mindbender')) and (( debuff[classtable.ShadowWordPainDeBuff].up and dots_up or (classtable and classtable.ShadowCrash and GetSpellCooldown(classtable.ShadowCrash).duration >=5 ) and talents[classtable.WhisperingShadows] ) and ( ttd >15 ) and ( not talents[classtable.DarkAscension] or cooldown[classtable.DarkAscension].remains <gcd )) and cooldown[classtable.Mindbender].ready then
+    if (MaxDps:FindSpell(classtable.Mindbender) and CheckSpellCosts(classtable.Mindbender, 'Mindbender')) and (( debuff[classtable.ShadowWordPainDeBuff].up and dots_up or (classtable and classtable.ShadowCrash and GetSpellCooldown(classtable.ShadowCrash).duration >=5 ) and talents[classtable.WhisperingShadows] ) and ( boss and ttd <30 or ttd >15 ) and ( not talents[classtable.DarkAscension] or cooldown[classtable.DarkAscension].remains <gcd or boss and ttd <15 )) and cooldown[classtable.Mindbender].ready then
         return classtable.Mindbender
     end
     if (MaxDps:FindSpell(classtable.ShadowWordDeath) and CheckSpellCosts(classtable.ShadowWordDeath, 'ShadowWordDeath')) and (true and talents[classtable.DevourMatter]) and cooldown[classtable.ShadowWordDeath].ready then
@@ -266,7 +283,7 @@ function Shadow:main()
     if (MaxDps:FindSpell(classtable.VoidBolt) and CheckSpellCosts(classtable.VoidBolt, 'VoidBolt')) and (InsanityDeficit >16 and cooldown[classtable.VoidBolt].remains <= 0.1) and cooldown[classtable.VoidBolt].ready then
         return classtable.VoidBolt
     end
-    if (MaxDps:FindSpell(classtable.DevouringPlague) and CheckSpellCosts(classtable.DevouringPlague, 'DevouringPlague')) and (debuff[classtable.DevouringPlagueDebuff].count  <= 1 and debuff[classtable.DevouringPlagueDeBuff].remains <= gcd and ( not talents[classtable.VoidEruption] or cooldown[classtable.VoidEruption].remains >= gcd * 3 ) or InsanityDeficit <= 16) and cooldown[classtable.DevouringPlague].ready then
+    if (MaxDps:FindSpell(classtable.DevouringPlague) and CheckSpellCosts(classtable.DevouringPlague, 'DevouringPlague')) and (debuff[classtable.DevouringPlagueDeBuff].count  <= 1 and debuff[classtable.DevouringPlagueDeBuff].remains <= gcd and ( not talents[classtable.VoidEruption] or cooldown[classtable.VoidEruption].remains >= gcd * 3 ) or InsanityDeficit <= 16) and cooldown[classtable.DevouringPlague].ready then
         return classtable.DevouringPlague
     end
     if (MaxDps:FindSpell(classtable.VoidTorrent) and CheckSpellCosts(classtable.VoidTorrent, 'VoidTorrent')) and (( debuff[classtable.DevouringPlagueDeBuff].up or talents[classtable.VoidEruption] and cooldown[classtable.VoidEruption].ready ) and talents[classtable.EntropicRift] and not holding_crash) and cooldown[classtable.VoidTorrent].ready then
@@ -290,7 +307,7 @@ function Shadow:main()
             return Shadow:empowered_filler()
         end
     end
-    if (MaxDps:FindSpell(classtable.DevouringPlague) and CheckSpellCosts(classtable.DevouringPlague, 'DevouringPlague')) and (ttd <= ( classtable and classtable.DevouringPlague and GetSpellInfo(classtable.DevouringPlague).castTime /1000 ) + 4) and cooldown[classtable.DevouringPlague].ready then
+    if (MaxDps:FindSpell(classtable.DevouringPlague) and CheckSpellCosts(classtable.DevouringPlague, 'DevouringPlague')) and (boss and ttd <= ( classtable and classtable.DevouringPlague and GetSpellInfo(classtable.DevouringPlague).castTime /1000 ) + 4) and cooldown[classtable.DevouringPlague].ready then
         return classtable.DevouringPlague
     end
     if (MaxDps:FindSpell(classtable.DevouringPlague) and CheckSpellCosts(classtable.DevouringPlague, 'DevouringPlague')) and (InsanityDeficit <= 35 and talents[classtable.DistortedReality] or buff[classtable.DarkAscensionBuff].up or buff[classtable.MindDevourerBuff].up and cooldown[classtable.MindBlast].ready and ( cooldown[classtable.VoidEruption].remains >= 3 * gcd or not talents[classtable.VoidEruption] ) or buff[classtable.EntropicRiftBuff].up) and cooldown[classtable.DevouringPlague].ready then
@@ -324,12 +341,12 @@ function Shadow:aoe_variables()
     end
     dots_up = true--( debuff[classtable.VampiricTouchDebuff].count  + 8 * ( (classtable and classtable.ShadowCrash and GetSpellCooldown(classtable.ShadowCrash).duration >=5 ) and talents[classtable.WhisperingShadows] ) ) >= max_vts or not is_vt_possible
     if holding_crash and talents[classtable.WhisperingShadows] and (targets >1) then
-        holding_crash = ( max_vts - debuff[classtable.VampiricTouchDebuff].count  ) <4 and math.huge >15 or math.huge <10 and 1 >( max_vts - debuff[classtable.VampiricTouchDebuff].count  )
+        holding_crash = ( max_vts - debuff[classtable.VampiricTouchDeBuff].count  ) <4 and math.huge >15 or math.huge <10 and 1 >( max_vts - debuff[classtable.VampiricTouchDeBuff].count  )
     end
-    manual_vts_applied = ( debuff[classtable.VampiricTouchDebuff].count  + 8 * (not holding_crash and 1 or 0) ) >= (max_vts and 1 or 0) or not is_vt_possible
+    manual_vts_applied = ( debuff[classtable.VampiricTouchDeBuff].count  + 8 * (not holding_crash and 1 or 0) ) >= (max_vts and 1 or 0) or not is_vt_possible
 end
 function Shadow:cds()
-    if (MaxDps:FindSpell(classtable.PowerInfusion) and CheckSpellCosts(classtable.PowerInfusion, 'PowerInfusion')) and (( buff[classtable.VoidformBuff].up or buff[classtable.DarkAscensionBuff].up and ( ttd <= 80 or ttd >= 140 ) )) and cooldown[classtable.PowerInfusion].ready then
+    if (MaxDps:FindSpell(classtable.PowerInfusion) and CheckSpellCosts(classtable.PowerInfusion, 'PowerInfusion')) and (( buff[classtable.VoidformBuff].up or buff[classtable.DarkAscensionBuff].up and ( boss and ttd <= 80 or ttd >= 140 ) )) and cooldown[classtable.PowerInfusion].ready then
         MaxDps:GlowCooldown(classtable.PowerInfusion, cooldown[classtable.PowerInfusion].ready)
     end
     if (MaxDps:FindSpell(classtable.Halo) and CheckSpellCosts(classtable.Halo, 'Halo')) and (talents[classtable.PowerSurge] and ( ( UnitExists('pet') and UnitName('pet')  == 'fiend' ) and cooldown[classtable.Fiend].remains >= 4 and talents[classtable.Mindbender] or not talents[classtable.Mindbender] and not cooldown[classtable.Fiend].ready or targets >2 and not talents[classtable.InescapableTorment] or not talents[classtable.DarkAscension] ) and ( cooldown[classtable.MindBlast].charges == 0 or not talents[classtable.VoidEruption] or cooldown[classtable.VoidEruption].remains >= gcd * 4 )) and cooldown[classtable.Halo].ready then
@@ -378,14 +395,6 @@ function Shadow:filler()
     if (MaxDps:FindSpell(classtable.MindSpike) and CheckSpellCosts(classtable.MindSpike, 'MindSpike')) and cooldown[classtable.MindSpike].ready then
         return classtable.MindSpike
     end
-
-    if (MaxDps:FindSpell(classtable.ShadowWordPain) and CheckSpellCosts(classtable.ShadowWordPain, 'ShadowWordPain')) and ((MaxDps.tier and MaxDps.tier[31].count >= 4)) and debuff[classtable.ShadowWordPainDeBuff].refreshable and cooldown[classtable.ShadowWordPain].ready then
-        return classtable.ShadowWordPain
-    end
-    if (MaxDps:FindSpell(classtable.ShadowWordPain) and CheckSpellCosts(classtable.ShadowWordPain, 'ShadowWordPain')) and (not (MaxDps.tier and MaxDps.tier[31].count >= 4)) and debuff[classtable.ShadowWordPainDeBuff].refreshable and cooldown[classtable.ShadowWordPain].ready then
-        return classtable.ShadowWordPain
-    end
-
     if (MaxDps:FindSpell(classtable.MindFlay) and CheckSpellCosts(classtable.MindFlay, 'MindFlay')) and cooldown[classtable.MindFlay].ready then
         return classtable.MindFlay
     end
@@ -400,6 +409,12 @@ function Shadow:filler()
     end
     if (MaxDps:FindSpell(classtable.ShadowWordDeath) and CheckSpellCosts(classtable.ShadowWordDeath, 'ShadowWordDeath')) and cooldown[classtable.ShadowWordDeath].ready then
         return classtable.ShadowWordDeath
+    end
+    if (MaxDps:FindSpell(classtable.ShadowWordPain) and CheckSpellCosts(classtable.ShadowWordPain, 'ShadowWordPain')) and ((MaxDps.tier and MaxDps.tier[31].count >= 4)) and cooldown[classtable.ShadowWordPain].ready then
+        return classtable.ShadowWordPain
+    end
+    if (MaxDps:FindSpell(classtable.ShadowWordPain) and CheckSpellCosts(classtable.ShadowWordPain, 'ShadowWordPain')) and (not (MaxDps.tier and MaxDps.tier[31].count >= 4)) and cooldown[classtable.ShadowWordPain].ready then
+        return classtable.ShadowWordPain
     end
 end
 function Shadow:empowered_filler()
