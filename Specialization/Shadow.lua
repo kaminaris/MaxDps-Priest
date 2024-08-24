@@ -80,26 +80,6 @@ local manual_vts_applied
 local function CheckSpellCosts(spell,spellstring)
     if not IsSpellKnown(spell) then return false end
     if not C_Spell.IsSpellUsable(spell) then return false end
-    if spellstring == 'TouchofDeath' then
-        if targethealthPerc > 15 then
-            return false
-        end
-    end
-    if spellstring == 'KillShot' then
-        if (classtable.SicEmBuff and not buff[classtable.SicEmBuff].up) or (classtable.HuntersPreyBuff and not buff[classtable.HuntersPreyBuff].up) and targethealthPerc > 15 then
-            return false
-        end
-    end
-    if spellstring == 'HammerofWrath' then
-        if ( (classtable.AvengingWrathBuff and not buff[classtable.AvengingWrathBuff].up) or (classtable.FinalVerdictBuff and not buff[classtable.FinalVerdictBuff].up) ) and targethealthPerc > 20 then
-            return false
-        end
-    end
-    if spellstring == 'Execute' then
-        if (classtable.SuddenDeathBuff and not buff[classtable.SuddenDeathBuff].up) and targethealthPerc > 35 then
-            return false
-        end
-    end
     local costs = C_Spell.GetSpellPowerCost(spell)
     if type(costs) ~= 'table' and spellstring then return true end
     for i,costtable in pairs(costs) do
@@ -355,7 +335,7 @@ function Shadow:cds()
     if (CheckSpellCosts(classtable.VoidEruption, 'VoidEruption')) and (not cooldown[classtable.Fiend].ready and ( ( UnitExists('pet') and UnitName('pet')  == 'fiend' ) and cooldown[classtable.Fiend].remains >= 4 or not talents[classtable.Mindbender] or targets >2 and not talents[classtable.InescapableTorment] ) and ( cooldown[classtable.MindBlast].charges == 0 or timeInCombat >15 )) and cooldown[classtable.VoidEruption].ready then
         return classtable.VoidEruption
     end
-    if (CheckSpellCosts(classtable.DarkAscension, 'DarkAscension')) and (cooldown[classtable.Mindbender].remains >= 4 or not talents[classtable.Mindbender] and not cooldown[classtable.Mindbender].ready or targets >2 and not talents[classtable.InescapableTorment]) and cooldown[classtable.DarkAscension].ready then
+    if (CheckSpellCosts(classtable.DarkAscension, 'DarkAscension')) and (( UnitExists('pet') and UnitName('pet')  == 'fiend' ) and cooldown[classtable.Fiend].remains >= 4 or not talents[classtable.Mindbender] and not cooldown[classtable.Fiend].ready or targets >2 and not talents[classtable.InescapableTorment]) and cooldown[classtable.DarkAscension].ready then
         return classtable.DarkAscension
     end
     local trinketsCheck = Shadow:trinkets()
@@ -448,7 +428,7 @@ function Shadow:callaction()
     if aoe_variablesCheck then
         return aoe_variablesCheck
     end
-    if (ttd <30 or ttd >15 and ( not holding_crash or targets >2 )) then
+    if (boss and ttd <30 or ttd >15 and ( not holding_crash or targets >2 )) then
         local cdsCheck = Shadow:cds()
         if cdsCheck then
             return Shadow:cds()
