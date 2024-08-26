@@ -77,93 +77,6 @@ local pool_for_cds
 local dots_up
 local manual_vts_applied
 
-local function CheckSpellCosts(spell,spellstring)
-    if not IsSpellKnown(spell) then return false end
-    if not C_Spell.IsSpellUsable(spell) then return false end
-    local costs = C_Spell.GetSpellPowerCost(spell)
-    if type(costs) ~= 'table' and spellstring then return true end
-    for i,costtable in pairs(costs) do
-        if UnitPower('player', costtable.type) < costtable.cost then
-            return false
-        end
-    end
-    return true
-end
-local function MaxGetSpellCost(spell,power)
-    local costs = C_Spell.GetSpellPowerCost(spell)
-    if type(costs) ~= 'table' then return 0 end
-    for i,costtable in pairs(costs) do
-        if costtable.name == power then
-            return costtable.cost
-        end
-    end
-    return 0
-end
-
-
-
-local function CheckEquipped(checkName)
-    for i=1,14 do
-        local itemID = GetInventoryItemID('player', i)
-        local itemName = itemID and C_Item.GetItemInfo(itemID) or ''
-        if checkName == itemName then
-            return true
-        end
-    end
-    return false
-end
-
-
-
-
-local function CheckTrinketNames(checkName)
-    --if slot == 1 then
-    --    slot = 13
-    --end
-    --if slot == 2 then
-    --    slot = 14
-    --end
-    for i=13,14 do
-        local itemID = GetInventoryItemID('player', i)
-        local itemName = C_Item.GetItemInfo(itemID)
-        if checkName == itemName then
-            return true
-        end
-    end
-    return false
-end
-
-
-local function CheckTrinketCooldown(slot)
-    if slot == 1 then
-        slot = 13
-    end
-    if slot == 2 then
-        slot = 14
-    end
-    if slot == 13 or slot == 14 then
-        local itemID = GetInventoryItemID('player', slot)
-        local _, duration, _ = C_Item.GetItemCooldown(itemID)
-        if duration == 0 then return true else return false end
-    else
-        local tOneitemID = GetInventoryItemID('player', 13)
-        local tTwoitemID = GetInventoryItemID('player', 14)
-        local tOneitemName = C_Item.GetItemInfo(tOneitemID)
-        local tTwoitemName = C_Item.GetItemInfo(tTwoitemID)
-        if tOneitemName == slot then
-            local _, duration, _ = C_Item.GetItemCooldown(tOneitemID)
-            if duration == 0 then return true else return false end
-        end
-        if tTwoitemName == slot then
-            local _, duration, _ = C_Item.GetItemCooldown(tTwoitemID)
-            if duration == 0 then return true else return false end
-        end
-    end
-end
-
-
-
-
 local function GetTotemDuration(name)
     for index=1,MAX_TOTEMS do
         local arg1, totemName, startTime, duration, icon = GetTotemInfo(index)
@@ -172,41 +85,8 @@ local function GetTotemDuration(name)
     end
 end
 
-
-local function CheckPrevSpell(spell)
-    if MaxDps and MaxDps.spellHistory then
-        if MaxDps.spellHistory[1] then
-            if MaxDps.spellHistory[1] == spell then
-                return true
-            end
-            if MaxDps.spellHistory[1] ~= spell then
-                return false
-            end
-        end
-    end
-    return true
-end
-
-
-local function boss()
-    if UnitExists('boss1')
-    or UnitExists('boss2')
-    or UnitExists('boss3')
-    or UnitExists('boss4')
-    or UnitExists('boss5')
-    or UnitExists('boss6')
-    or UnitExists('boss7')
-    or UnitExists('boss8')
-    or UnitExists('boss9')
-    or UnitExists('boss10') then
-        return true
-    end
-    return false
-end
-
-
 function Shadow:precombat()
-    --if (CheckSpellCosts(classtable.Shadowform, 'Shadowform')) and (not buff[classtable.ShadowformBuff].up) and cooldown[classtable.Shadowform].ready then
+    --if (MaxDps:CheckSpellUsable(classtable.Shadowform, 'Shadowform')) and (not buff[classtable.ShadowformBuff].up) and cooldown[classtable.Shadowform].ready then
     --    return classtable.Shadowform
     --end
     dr_force_prio = 0
@@ -214,10 +94,10 @@ function Shadow:precombat()
     max_vts = 0
     is_vt_possible = 0
     pooling_mindblasts = 0
-    --if (CheckSpellCosts(classtable.ShadowCrash, 'ShadowCrash')) and (math.huge >= 25 and targets <= 8 and ( not (MaxDps.tier and MaxDps.tier[31].count >= 4) or targets >1 )) and cooldown[classtable.ShadowCrash].ready then
+    --if (MaxDps:CheckSpellUsable(classtable.ShadowCrash, 'ShadowCrash')) and (math.huge >= 25 and targets <= 8 and ( not (MaxDps.tier and MaxDps.tier[31].count >= 4) or targets >1 )) and cooldown[classtable.ShadowCrash].ready then
     --    return classtable.ShadowCrash
     --end
-    --if (CheckSpellCosts(classtable.VampiricTouch, 'VampiricTouch')) and (not talents[classtable.ShadowCrash] or math.huge <25 or targets >8 or (MaxDps.tier and MaxDps.tier[31].count >= 4) and targets == 1) and cooldown[classtable.VampiricTouch].ready then
+    --if (MaxDps:CheckSpellUsable(classtable.VampiricTouch, 'VampiricTouch')) and (not talents[classtable.ShadowCrash] or math.huge <25 or targets >8 or (MaxDps.tier and MaxDps.tier[31].count >= 4) and targets == 1) and cooldown[classtable.VampiricTouch].ready then
     --    return classtable.VampiricTouch
     --end
 end
@@ -226,10 +106,10 @@ function Shadow:aoe()
     if aoe_variablesCheck then
         return aoe_variablesCheck
     end
-    if (CheckSpellCosts(classtable.VampiricTouch, 'VampiricTouch')) and (( debuff[classtable.VampiricTouchDeBuff].refreshable and ttd >= 18 and ( debuff[classtable.VampiricTouchDeBuff].up or not dots_up ) ) and ( ( max_vts >0 and not manual_vts_applied and not (classtable and classtable.ShadowCrash and GetSpellCooldown(classtable.ShadowCrash).duration >=5 ) or not talents[classtable.WhisperingShadows] ) and not buff[classtable.EntropicRiftBuff].up )) and cooldown[classtable.VampiricTouch].ready then
+    if (MaxDps:CheckSpellUsable(classtable.VampiricTouch, 'VampiricTouch')) and (( debuff[classtable.VampiricTouchDeBuff].refreshable and ttd >= 18 and ( debuff[classtable.VampiricTouchDeBuff].up or not dots_up ) ) and ( ( max_vts >0 and not manual_vts_applied and not (classtable and classtable.ShadowCrash and GetSpellCooldown(classtable.ShadowCrash).duration >=5 ) or not talents[classtable.WhisperingShadows] ) and not buff[classtable.EntropicRiftBuff].up )) and cooldown[classtable.VampiricTouch].ready then
         return classtable.VampiricTouch
     end
-    if (CheckSpellCosts(classtable.ShadowCrash, 'ShadowCrash')) and (not holding_crash and ( debuff[classtable.VampiricTouchDeBuff].refreshable or debuff[classtable.VampiricTouchDeBuff].remains <= ttd and not buff[classtable.VoidformBuff].up and ( math.huge - debuff[classtable.VampiricTouchDeBuff].remains ) <15 )) and cooldown[classtable.ShadowCrash].ready then
+    if (MaxDps:CheckSpellUsable(classtable.ShadowCrash, 'ShadowCrash')) and (not holding_crash and ( debuff[classtable.VampiricTouchDeBuff].refreshable or debuff[classtable.VampiricTouchDeBuff].remains <= ttd and not buff[classtable.VoidformBuff].up and ( math.huge - debuff[classtable.VampiricTouchDeBuff].remains ) <15 )) and cooldown[classtable.ShadowCrash].ready then
         return classtable.ShadowCrash
     end
 end
@@ -242,43 +122,43 @@ function Shadow:main()
     else
         pooling_mindblasts = 0
     end
-    if (boss and ttd <30 or ttd >15 and ( not holding_crash or targets >2 )) then
+    if (MaxDps:boss() and ttd <30 or ttd >15 and ( not holding_crash or targets >2 )) then
         local cdsCheck = Shadow:cds()
         if cdsCheck then
             return Shadow:cds()
         end
     end
-    if (CheckSpellCosts(classtable.Mindbender, 'Mindbender')) and (( debuff[classtable.ShadowWordPainDeBuff].up and dots_up or (classtable and classtable.ShadowCrash and GetSpellCooldown(classtable.ShadowCrash).duration >=5 ) and talents[classtable.WhisperingShadows] ) and ( boss and ttd <30 or ttd >15 ) and ( not talents[classtable.DarkAscension] or cooldown[classtable.DarkAscension].remains <gcd or boss and ttd <15 )) and cooldown[classtable.Mindbender].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Mindbender, 'Mindbender')) and (( debuff[classtable.ShadowWordPainDeBuff].up and dots_up or (classtable and classtable.ShadowCrash and GetSpellCooldown(classtable.ShadowCrash).duration >=5 ) and talents[classtable.WhisperingShadows] ) and ( MaxDps:boss() and ttd <30 or ttd >15 ) and ( not talents[classtable.DarkAscension] or cooldown[classtable.DarkAscension].remains <gcd or MaxDps:boss() and ttd <15 )) and cooldown[classtable.Mindbender].ready then
         return classtable.Mindbender
     end
-    if (CheckSpellCosts(classtable.ShadowWordDeath, 'ShadowWordDeath')) and (true and talents[classtable.DevourMatter]) and cooldown[classtable.ShadowWordDeath].ready then
+    if (MaxDps:CheckSpellUsable(classtable.ShadowWordDeath, 'ShadowWordDeath')) and (true and talents[classtable.DevourMatter]) and cooldown[classtable.ShadowWordDeath].ready then
         return classtable.ShadowWordDeath
     end
-    if (CheckSpellCosts(classtable.VoidBlast, 'VoidBlast')) and (not talents[classtable.MindDevourer] or not buff[classtable.MindDevourerBuff].up or buff[classtable.EntropicRiftBuff].remains <= gcd) and cooldown[classtable.VoidBlast].ready then
+    if (MaxDps:CheckSpellUsable(classtable.VoidBlast, 'VoidBlast')) and (not talents[classtable.MindDevourer] or not buff[classtable.MindDevourerBuff].up or buff[classtable.EntropicRiftBuff].remains <= gcd) and cooldown[classtable.VoidBlast].ready then
         return classtable.VoidBlast
     end
-    if (CheckSpellCosts(classtable.MindBlast, 'MindBlast')) and (buff[classtable.VoidformBuff].up and cooldown[classtable.MindBlast].fullRecharge <= gcd and ( not talents[classtable.InsidiousIre] or debuff[classtable.DevouringPlagueDeBuff].remains >= timeShift ) and ((( cooldown[classtable.VoidBolt].remains % gcd - cooldown[classtable.VoidBolt].remains % gcd ) * gcd <= 0.25 and (cooldown[classtable.VoidBolt].remains % gcd - cooldown[classtable.VoidBolt].remains % gcd ) >= 0.01)) or true) and cooldown[classtable.MindBlast].ready then
+    if (MaxDps:CheckSpellUsable(classtable.MindBlast, 'MindBlast')) and (buff[classtable.VoidformBuff].up and cooldown[classtable.MindBlast].fullRecharge <= gcd and ( not talents[classtable.InsidiousIre] or debuff[classtable.DevouringPlagueDeBuff].remains >= timeShift ) and ((( cooldown[classtable.VoidBolt].remains % gcd - cooldown[classtable.VoidBolt].remains % gcd ) * gcd <= 0.25 and (cooldown[classtable.VoidBolt].remains % gcd - cooldown[classtable.VoidBolt].remains % gcd ) >= 0.01)) or true) and cooldown[classtable.MindBlast].ready then
         return classtable.MindBlast
     end
-    if (CheckSpellCosts(classtable.VoidBolt, 'VoidBolt')) and (InsanityDeficit >16 and cooldown[classtable.VoidBolt].remains <= 0.1) and cooldown[classtable.VoidBolt].ready then
+    if (MaxDps:CheckSpellUsable(classtable.VoidBolt, 'VoidBolt')) and (InsanityDeficit >16 and cooldown[classtable.VoidBolt].remains <= 0.1) and cooldown[classtable.VoidBolt].ready then
         return classtable.VoidBolt
     end
-    if (CheckSpellCosts(classtable.DevouringPlague, 'DevouringPlague')) and (debuff[classtable.DevouringPlagueDeBuff].count  <= 1 and debuff[classtable.DevouringPlagueDeBuff].remains <= gcd and ( not talents[classtable.VoidEruption] or cooldown[classtable.VoidEruption].remains >= gcd * 3 ) or InsanityDeficit <= 16) and cooldown[classtable.DevouringPlague].ready then
+    if (MaxDps:CheckSpellUsable(classtable.DevouringPlague, 'DevouringPlague')) and (debuff[classtable.DevouringPlagueDeBuff].count  <= 1 and debuff[classtable.DevouringPlagueDeBuff].remains <= gcd and ( not talents[classtable.VoidEruption] or cooldown[classtable.VoidEruption].remains >= gcd * 3 ) or InsanityDeficit <= 16) and cooldown[classtable.DevouringPlague].ready then
         return classtable.DevouringPlague
     end
-    if (CheckSpellCosts(classtable.VoidTorrent, 'VoidTorrent')) and (( debuff[classtable.DevouringPlagueDeBuff].up or talents[classtable.VoidEruption] and cooldown[classtable.VoidEruption].ready ) and talents[classtable.EntropicRift] and not holding_crash) and cooldown[classtable.VoidTorrent].ready then
+    if (MaxDps:CheckSpellUsable(classtable.VoidTorrent, 'VoidTorrent')) and (( debuff[classtable.DevouringPlagueDeBuff].up or talents[classtable.VoidEruption] and cooldown[classtable.VoidEruption].ready ) and talents[classtable.EntropicRift] and not holding_crash) and cooldown[classtable.VoidTorrent].ready then
         return classtable.VoidTorrent
     end
-    if (CheckSpellCosts(classtable.ShadowWordDeath, 'ShadowWordDeath')) and (talents[classtable.DepthofShadows]) and cooldown[classtable.ShadowWordDeath].ready then
+    if (MaxDps:CheckSpellUsable(classtable.ShadowWordDeath, 'ShadowWordDeath')) and (talents[classtable.DepthofShadows]) and cooldown[classtable.ShadowWordDeath].ready then
         return classtable.ShadowWordDeath
     end
-    if (CheckSpellCosts(classtable.MindBlast, 'MindBlast')) and (( cooldown[classtable.MindBlast].fullRecharge <= gcd + timeShift or GetTotemDuration('fiend') <= timeShift + gcd ) and ( UnitExists('pet') and UnitName('pet')  == 'fiend' ) and talents[classtable.InescapableTorment] and GetTotemDuration('fiend') >= timeShift and targets <= 7 and ( not buff[classtable.MindDevourerBuff].up or not talents[classtable.MindDevourer] ) and debuff[classtable.DevouringPlagueDeBuff].remains >timeShift and not pooling_mindblasts) and cooldown[classtable.MindBlast].ready then
+    if (MaxDps:CheckSpellUsable(classtable.MindBlast, 'MindBlast')) and (( cooldown[classtable.MindBlast].fullRecharge <= gcd + timeShift or GetTotemDuration('fiend') <= timeShift + gcd ) and ( UnitExists('pet') and UnitName('pet')  == 'fiend' ) and talents[classtable.InescapableTorment] and GetTotemDuration('fiend') >= timeShift and targets <= 7 and ( not buff[classtable.MindDevourerBuff].up or not talents[classtable.MindDevourer] ) and debuff[classtable.DevouringPlagueDeBuff].remains >timeShift and not pooling_mindblasts) and cooldown[classtable.MindBlast].ready then
         return classtable.MindBlast
     end
-    if (CheckSpellCosts(classtable.ShadowWordDeath, 'ShadowWordDeath')) and (GetTotemDuration('fiend') <= ( gcd + 1 ) and ( UnitExists('pet') and UnitName('pet')  == 'fiend' ) and talents[classtable.InescapableTorment] and targets <= 7) and cooldown[classtable.ShadowWordDeath].ready then
+    if (MaxDps:CheckSpellUsable(classtable.ShadowWordDeath, 'ShadowWordDeath')) and (GetTotemDuration('fiend') <= ( gcd + 1 ) and ( UnitExists('pet') and UnitName('pet')  == 'fiend' ) and talents[classtable.InescapableTorment] and targets <= 7) and cooldown[classtable.ShadowWordDeath].ready then
         return classtable.ShadowWordDeath
     end
-    if (CheckSpellCosts(classtable.VoidBolt, 'VoidBolt')) and (cooldown[classtable.VoidBolt].remains <= 0.1) and cooldown[classtable.VoidBolt].ready then
+    if (MaxDps:CheckSpellUsable(classtable.VoidBolt, 'VoidBolt')) and (cooldown[classtable.VoidBolt].remains <= 0.1) and cooldown[classtable.VoidBolt].ready then
         return classtable.VoidBolt
     end
     if (( buff[classtable.MindSpikeInsanityBuff].count >2 and talents[classtable.MindSpike] or buff[classtable.MindFlayInsanityBuff].count >2 and not talents[classtable.MindSpike] ) and talents[classtable.EmpoweredSurges] and not cooldown[classtable.VoidEruption].ready) then
@@ -287,25 +167,25 @@ function Shadow:main()
             return Shadow:empowered_filler()
         end
     end
-    if (CheckSpellCosts(classtable.DevouringPlague, 'DevouringPlague')) and (boss and ttd <= ( classtable and classtable.DevouringPlague and GetSpellInfo(classtable.DevouringPlague).castTime /1000 ) + 4) and cooldown[classtable.DevouringPlague].ready then
+    if (MaxDps:CheckSpellUsable(classtable.DevouringPlague, 'DevouringPlague')) and (MaxDps:boss() and ttd <= ( classtable and classtable.DevouringPlague and GetSpellInfo(classtable.DevouringPlague).castTime /1000 ) + 4) and cooldown[classtable.DevouringPlague].ready then
         return classtable.DevouringPlague
     end
-    if (CheckSpellCosts(classtable.DevouringPlague, 'DevouringPlague')) and (InsanityDeficit <= 35 and talents[classtable.DistortedReality] or buff[classtable.DarkAscensionBuff].up or buff[classtable.MindDevourerBuff].up and cooldown[classtable.MindBlast].ready and ( cooldown[classtable.VoidEruption].remains >= 3 * gcd or not talents[classtable.VoidEruption] ) or buff[classtable.EntropicRiftBuff].up) and cooldown[classtable.DevouringPlague].ready then
+    if (MaxDps:CheckSpellUsable(classtable.DevouringPlague, 'DevouringPlague')) and (InsanityDeficit <= 35 and talents[classtable.DistortedReality] or buff[classtable.DarkAscensionBuff].up or buff[classtable.MindDevourerBuff].up and cooldown[classtable.MindBlast].ready and ( cooldown[classtable.VoidEruption].remains >= 3 * gcd or not talents[classtable.VoidEruption] ) or buff[classtable.EntropicRiftBuff].up) and cooldown[classtable.DevouringPlague].ready then
         return classtable.DevouringPlague
     end
-    if (CheckSpellCosts(classtable.VoidTorrent, 'VoidTorrent')) and (not holding_crash and not talents[classtable.EntropicRift] and debuff[classtable.DevouringPlagueDeBuff].remains >= 2.5) and cooldown[classtable.VoidTorrent].ready then
+    if (MaxDps:CheckSpellUsable(classtable.VoidTorrent, 'VoidTorrent')) and (not holding_crash and not talents[classtable.EntropicRift] and debuff[classtable.DevouringPlagueDeBuff].remains >= 2.5) and cooldown[classtable.VoidTorrent].ready then
         return classtable.VoidTorrent
     end
-    if (CheckSpellCosts(classtable.ShadowCrash, 'ShadowCrash')) and (debuff[classtable.VampiricTouchDeBuff].refreshable and not holding_crash) and cooldown[classtable.ShadowCrash].ready then
+    if (MaxDps:CheckSpellUsable(classtable.ShadowCrash, 'ShadowCrash')) and (debuff[classtable.VampiricTouchDeBuff].refreshable and not holding_crash) and cooldown[classtable.ShadowCrash].ready then
         return classtable.ShadowCrash
     end
-    if (CheckSpellCosts(classtable.VampiricTouch, 'VampiricTouch')) and (debuff[classtable.VampiricTouchDeBuff].refreshable and ttd >12 and ( debuff[classtable.VampiricTouchDeBuff].up or not dots_up ) and ( max_vts >0 or targets == 1 ) and ( cooldown[classtable.ShadowCrash].remains >= debuff[classtable.VampiricTouchDeBuff].remains or holding_crash or not talents[classtable.WhisperingShadows] ) and ( not (classtable and classtable.ShadowCrash and GetSpellCooldown(classtable.ShadowCrash).duration >=5 ) or not talents[classtable.WhisperingShadows] )) and cooldown[classtable.VampiricTouch].ready then
+    if (MaxDps:CheckSpellUsable(classtable.VampiricTouch, 'VampiricTouch')) and (debuff[classtable.VampiricTouchDeBuff].refreshable and ttd >12 and ( debuff[classtable.VampiricTouchDeBuff].up or not dots_up ) and ( max_vts >0 or targets == 1 ) and ( cooldown[classtable.ShadowCrash].remains >= debuff[classtable.VampiricTouchDeBuff].remains or holding_crash or not talents[classtable.WhisperingShadows] ) and ( not (classtable and classtable.ShadowCrash and GetSpellCooldown(classtable.ShadowCrash).duration >=5 ) or not talents[classtable.WhisperingShadows] )) and cooldown[classtable.VampiricTouch].ready then
         return classtable.VampiricTouch
     end
-    if (CheckSpellCosts(classtable.ShadowWordDeath, 'ShadowWordDeath')) and (dots_up and buff[classtable.DeathspeakerBuff].up) and cooldown[classtable.ShadowWordDeath].ready then
+    if (MaxDps:CheckSpellUsable(classtable.ShadowWordDeath, 'ShadowWordDeath')) and (dots_up and buff[classtable.DeathspeakerBuff].up) and cooldown[classtable.ShadowWordDeath].ready then
         return classtable.ShadowWordDeath
     end
-    if (CheckSpellCosts(classtable.MindBlast, 'MindBlast')) and (( not buff[classtable.MindDevourerBuff].up or not talents[classtable.MindDevourer] or cooldown[classtable.VoidEruption].ready and talents[classtable.VoidEruption] ) and not pooling_mindblasts) and cooldown[classtable.MindBlast].ready then
+    if (MaxDps:CheckSpellUsable(classtable.MindBlast, 'MindBlast')) and (( not buff[classtable.MindDevourerBuff].up or not talents[classtable.MindDevourer] or cooldown[classtable.VoidEruption].ready and talents[classtable.VoidEruption] ) and not pooling_mindblasts) and cooldown[classtable.MindBlast].ready then
         return classtable.MindBlast
     end
     local fillerCheck = Shadow:filler()
@@ -326,28 +206,28 @@ function Shadow:aoe_variables()
     manual_vts_applied = ( debuff[classtable.VampiricTouchDeBuff].count  + 8 * (not holding_crash and 1 or 0) ) >= (max_vts and 1 or 0) or not is_vt_possible
 end
 function Shadow:cds()
-    if (CheckSpellCosts(classtable.PowerInfusion, 'PowerInfusion')) and (( buff[classtable.VoidformBuff].up or buff[classtable.DarkAscensionBuff].up and ( boss and ttd <= 80 or ttd >= 140 ) )) and cooldown[classtable.PowerInfusion].ready then
+    if (MaxDps:CheckSpellUsable(classtable.PowerInfusion, 'PowerInfusion')) and (( buff[classtable.VoidformBuff].up or buff[classtable.DarkAscensionBuff].up and ( MaxDps:boss() and ttd <= 80 or ttd >= 140 ) )) and cooldown[classtable.PowerInfusion].ready then
         MaxDps:GlowCooldown(classtable.PowerInfusion, cooldown[classtable.PowerInfusion].ready)
     end
-    if (CheckSpellCosts(classtable.Halo, 'Halo')) and (talents[classtable.PowerSurge] and ( ( UnitExists('pet') and UnitName('pet')  == 'fiend' ) and cooldown[classtable.Fiend].remains >= 4 and talents[classtable.Mindbender] or not talents[classtable.Mindbender] and not cooldown[classtable.Fiend].ready or targets >2 and not talents[classtable.InescapableTorment] or not talents[classtable.DarkAscension] ) and ( cooldown[classtable.MindBlast].charges == 0 or not talents[classtable.VoidEruption] or cooldown[classtable.VoidEruption].remains >= gcd * 4 )) and cooldown[classtable.Halo].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Halo, 'Halo')) and (talents[classtable.PowerSurge] and ( ( UnitExists('pet') and UnitName('pet')  == 'fiend' ) and cooldown[classtable.Fiend].remains >= 4 and talents[classtable.Mindbender] or not talents[classtable.Mindbender] and not cooldown[classtable.Fiend].ready or targets >2 and not talents[classtable.InescapableTorment] or not talents[classtable.DarkAscension] ) and ( cooldown[classtable.MindBlast].charges == 0 or not talents[classtable.VoidEruption] or cooldown[classtable.VoidEruption].remains >= gcd * 4 )) and cooldown[classtable.Halo].ready then
         return classtable.Halo
     end
-    if (CheckSpellCosts(classtable.VoidEruption, 'VoidEruption')) and (not cooldown[classtable.Fiend].ready and ( ( UnitExists('pet') and UnitName('pet')  == 'fiend' ) and cooldown[classtable.Fiend].remains >= 4 or not talents[classtable.Mindbender] or targets >2 and not talents[classtable.InescapableTorment] ) and ( cooldown[classtable.MindBlast].charges == 0 or timeInCombat >15 )) and cooldown[classtable.VoidEruption].ready then
+    if (MaxDps:CheckSpellUsable(classtable.VoidEruption, 'VoidEruption')) and (not cooldown[classtable.Fiend].ready and ( ( UnitExists('pet') and UnitName('pet')  == 'fiend' ) and cooldown[classtable.Fiend].remains >= 4 or not talents[classtable.Mindbender] or targets >2 and not talents[classtable.InescapableTorment] ) and ( cooldown[classtable.MindBlast].charges == 0 or timeInCombat >15 )) and cooldown[classtable.VoidEruption].ready then
         return classtable.VoidEruption
     end
-    if (CheckSpellCosts(classtable.DarkAscension, 'DarkAscension')) and (( UnitExists('pet') and UnitName('pet')  == 'fiend' ) and cooldown[classtable.Fiend].remains >= 4 or not talents[classtable.Mindbender] and not cooldown[classtable.Fiend].ready or targets >2 and not talents[classtable.InescapableTorment]) and cooldown[classtable.DarkAscension].ready then
+    if (MaxDps:CheckSpellUsable(classtable.DarkAscension, 'DarkAscension')) and (( UnitExists('pet') and UnitName('pet')  == 'fiend' ) and cooldown[classtable.Fiend].remains >= 4 or not talents[classtable.Mindbender] and not cooldown[classtable.Fiend].ready or targets >2 and not talents[classtable.InescapableTorment]) and cooldown[classtable.DarkAscension].ready then
         return classtable.DarkAscension
     end
     local trinketsCheck = Shadow:trinkets()
     if trinketsCheck then
         return trinketsCheck
     end
-    --if (CheckSpellCosts(classtable.DesperatePrayer, 'DesperatePrayer')) and (curentHP <= 75) and cooldown[classtable.DesperatePrayer].ready then
+    --if (MaxDps:CheckSpellUsable(classtable.DesperatePrayer, 'DesperatePrayer')) and (curentHP <= 75) and cooldown[classtable.DesperatePrayer].ready then
     --    return classtable.DesperatePrayer
     --end
 end
 function Shadow:filler()
-    if (CheckSpellCosts(classtable.VampiricTouch, 'VampiricTouch')) and (buff[classtable.UnfurlingDarknessBuff].up) and cooldown[classtable.VampiricTouch].ready then
+    if (MaxDps:CheckSpellUsable(classtable.VampiricTouch, 'VampiricTouch')) and (buff[classtable.UnfurlingDarknessBuff].up) and cooldown[classtable.VampiricTouch].ready then
         return classtable.VampiricTouch
     end
     if (debuff[classtable.DevouringPlagueDeBuff].remains >( classtable and classtable.MindSpike and GetSpellInfo(classtable.MindSpike).castTime / 1000 ) or not talents[classtable.MindSpike]) then
@@ -356,52 +236,52 @@ function Shadow:filler()
             return Shadow:empowered_filler()
         end
     end
-    if (CheckSpellCosts(classtable.ShadowWordDeath, 'ShadowWordDeath')) and (targetHP <20 or ( buff[classtable.DeathspeakerBuff].up or (MaxDps.tier and MaxDps.tier[31].count >= 2) ) and debuff[classtable.DevouringPlagueDeBuff].up) and cooldown[classtable.ShadowWordDeath].ready then
+    if (MaxDps:CheckSpellUsable(classtable.ShadowWordDeath, 'ShadowWordDeath')) and (targetHP <20 or ( buff[classtable.DeathspeakerBuff].up or (MaxDps.tier and MaxDps.tier[31].count >= 2) ) and debuff[classtable.DevouringPlagueDeBuff].up) and cooldown[classtable.ShadowWordDeath].ready then
         return classtable.ShadowWordDeath
     end
-    if (CheckSpellCosts(classtable.ShadowWordDeath, 'ShadowWordDeath')) and (talents[classtable.InescapableTorment] and ( UnitExists('pet') and UnitName('pet')  == 'fiend' )) and cooldown[classtable.ShadowWordDeath].ready then
+    if (MaxDps:CheckSpellUsable(classtable.ShadowWordDeath, 'ShadowWordDeath')) and (talents[classtable.InescapableTorment] and ( UnitExists('pet') and UnitName('pet')  == 'fiend' )) and cooldown[classtable.ShadowWordDeath].ready then
         return classtable.ShadowWordDeath
     end
-    if (CheckSpellCosts(classtable.DevouringPlague, 'DevouringPlague')) and (buff[classtable.VoidformBuff].up or cooldown[classtable.DarkAscension].ready or buff[classtable.MindDevourerBuff].up) and cooldown[classtable.DevouringPlague].ready then
+    if (MaxDps:CheckSpellUsable(classtable.DevouringPlague, 'DevouringPlague')) and (buff[classtable.VoidformBuff].up or cooldown[classtable.DarkAscension].ready or buff[classtable.MindDevourerBuff].up) and cooldown[classtable.DevouringPlague].ready then
         return classtable.DevouringPlague
     end
-    if (CheckSpellCosts(classtable.Halo, 'Halo')) and (targets >1) and cooldown[classtable.Halo].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Halo, 'Halo')) and (targets >1) and cooldown[classtable.Halo].ready then
         return classtable.Halo
     end
     local empowered_fillerCheck = Shadow:empowered_filler()
     if empowered_fillerCheck then
         return empowered_fillerCheck
     end
-    if (CheckSpellCosts(classtable.MindSpike, 'MindSpike')) and cooldown[classtable.MindSpike].ready then
+    if (MaxDps:CheckSpellUsable(classtable.MindSpike, 'MindSpike')) and cooldown[classtable.MindSpike].ready then
         return classtable.MindSpike
     end
-    if (CheckSpellCosts(classtable.MindFlay, 'MindFlay')) and cooldown[classtable.MindFlay].ready then
+    if (MaxDps:CheckSpellUsable(classtable.MindFlay, 'MindFlay')) and cooldown[classtable.MindFlay].ready then
         return classtable.MindFlay
     end
-    if (CheckSpellCosts(classtable.DivineStar, 'DivineStar')) and cooldown[classtable.DivineStar].ready then
+    if (MaxDps:CheckSpellUsable(classtable.DivineStar, 'DivineStar')) and cooldown[classtable.DivineStar].ready then
         return classtable.DivineStar
     end
-    if (CheckSpellCosts(classtable.ShadowCrash, 'ShadowCrash')) and (math.huge >20 and not (MaxDps.tier and MaxDps.tier[31].count >= 4)) and cooldown[classtable.ShadowCrash].ready then
+    if (MaxDps:CheckSpellUsable(classtable.ShadowCrash, 'ShadowCrash')) and (math.huge >20 and not (MaxDps.tier and MaxDps.tier[31].count >= 4)) and cooldown[classtable.ShadowCrash].ready then
         return classtable.ShadowCrash
     end
-    if (CheckSpellCosts(classtable.ShadowWordDeath, 'ShadowWordDeath')) and (targetHP <20) and cooldown[classtable.ShadowWordDeath].ready then
+    if (MaxDps:CheckSpellUsable(classtable.ShadowWordDeath, 'ShadowWordDeath')) and (targetHP <20) and cooldown[classtable.ShadowWordDeath].ready then
         return classtable.ShadowWordDeath
     end
-    if (CheckSpellCosts(classtable.ShadowWordDeath, 'ShadowWordDeath')) and cooldown[classtable.ShadowWordDeath].ready then
+    if (MaxDps:CheckSpellUsable(classtable.ShadowWordDeath, 'ShadowWordDeath')) and cooldown[classtable.ShadowWordDeath].ready then
         return classtable.ShadowWordDeath
     end
-    if (CheckSpellCosts(classtable.ShadowWordPain, 'ShadowWordPain')) and ((MaxDps.tier and MaxDps.tier[31].count >= 4)) and cooldown[classtable.ShadowWordPain].ready then
+    if (MaxDps:CheckSpellUsable(classtable.ShadowWordPain, 'ShadowWordPain')) and ((MaxDps.tier and MaxDps.tier[31].count >= 4)) and cooldown[classtable.ShadowWordPain].ready then
         return classtable.ShadowWordPain
     end
-    if (CheckSpellCosts(classtable.ShadowWordPain, 'ShadowWordPain')) and (not (MaxDps.tier and MaxDps.tier[31].count >= 4)) and cooldown[classtable.ShadowWordPain].ready then
+    if (MaxDps:CheckSpellUsable(classtable.ShadowWordPain, 'ShadowWordPain')) and (not (MaxDps.tier and MaxDps.tier[31].count >= 4)) and cooldown[classtable.ShadowWordPain].ready then
         return classtable.ShadowWordPain
     end
 end
 function Shadow:empowered_filler()
-    if (CheckSpellCosts(classtable.MindSpikeInsanity, 'MindSpikeInsanity')) and cooldown[classtable.MindSpikeInsanity].ready then
+    if (MaxDps:CheckSpellUsable(classtable.MindSpikeInsanity, 'MindSpikeInsanity')) and cooldown[classtable.MindSpikeInsanity].ready then
         return classtable.MindSpikeInsanity
     end
-    if (CheckSpellCosts(classtable.MindFlayInsanity, 'MindFlayInsanity')) and (buff[classtable.MindFlayInsanityBuff].up) and cooldown[classtable.MindFlayInsanity].ready then
+    if (MaxDps:CheckSpellUsable(classtable.MindFlayInsanity, 'MindFlayInsanity')) and (buff[classtable.MindFlayInsanityBuff].up) and cooldown[classtable.MindFlayInsanity].ready then
         return classtable.MindFlayInsanity
     end
 end
@@ -409,7 +289,7 @@ function Shadow:trinkets()
 end
 
 function Shadow:callaction()
-    if (CheckSpellCosts(classtable.Silence, 'Silence')) and cooldown[classtable.Silence].ready then
+    if (MaxDps:CheckSpellUsable(classtable.Silence, 'Silence')) and cooldown[classtable.Silence].ready then
         MaxDps:GlowCooldown(classtable.Silence, ( select(8,UnitCastingInfo('target')) ~= nil and not select(8,UnitCastingInfo('target')) or select(7,UnitChannelInfo('target')) ~= nil and not select(7,UnitChannelInfo('target'))) )
     end
     holding_crash = math.huge <15
@@ -428,7 +308,7 @@ function Shadow:callaction()
     if aoe_variablesCheck then
         return aoe_variablesCheck
     end
-    if (boss and ttd <30 or ttd >15 and ( not holding_crash or targets >2 )) then
+    if (MaxDps:boss() and ttd <30 or ttd >15 and ( not holding_crash or targets >2 )) then
         local cdsCheck = Shadow:cds()
         if cdsCheck then
             return Shadow:cds()
