@@ -252,10 +252,10 @@ function Shadow:filler()
     if empowered_fillerCheck then
         return empowered_fillerCheck
     end
-    if (MaxDps:CheckSpellUsable(classtable.MindSpike, 'MindSpike')) and cooldown[classtable.MindSpike].ready then
+    if (MaxDps:CheckSpellUsable(classtable.MindSpike, 'MindSpike')) and talents[classtable.MindSpike] and cooldown[classtable.MindSpike].ready then
         return classtable.MindSpike
     end
-    if (MaxDps:CheckSpellUsable(classtable.MindFlay, 'MindFlay')) and cooldown[classtable.MindFlay].ready then
+    if (MaxDps:CheckSpellUsable(classtable.MindFlay, 'MindFlay')) and not talents[classtable.MindSpike] and cooldown[classtable.MindFlay].ready then
         return classtable.MindFlay
     end
     if (MaxDps:CheckSpellUsable(classtable.DivineStar, 'DivineStar')) and cooldown[classtable.DivineStar].ready then
@@ -383,6 +383,7 @@ function Priest:Shadow()
     Insanity = UnitPower('player', InsanityPT)
     InsanityMax = UnitPowerMax('player', InsanityPT)
     InsanityDeficit = InsanityMax - Insanity
+    classtable.VoidBolt = 228266
     for spellId in pairs(MaxDps.Flags) do
         self.Flags[spellId] = false
         self:ClearGlowIndependent(spellId, spellId)
