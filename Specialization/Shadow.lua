@@ -140,7 +140,7 @@ function Shadow:main()
     if (MaxDps:CheckSpellUsable(classtable.MindBlast, 'MindBlast')) and (buff[classtable.VoidformBuff].up and cooldown[classtable.MindBlast].fullRecharge <= gcd and ( not talents[classtable.InsidiousIre] or debuff[classtable.DevouringPlagueDeBuff].remains >= timeShift ) and ((( cooldown[classtable.VoidBolt].remains % gcd - cooldown[classtable.VoidBolt].remains % gcd ) * gcd <= 0.25 and (cooldown[classtable.VoidBolt].remains % gcd - cooldown[classtable.VoidBolt].remains % gcd ) >= 0.01)) or true) and cooldown[classtable.MindBlast].ready then
         return classtable.MindBlast
     end
-    if (MaxDps:CheckSpellUsable(classtable.VoidBolt, 'VoidBolt')) and (InsanityDeficit >16 and cooldown[classtable.VoidBolt].remains <= 0.1) and cooldown[classtable.VoidBolt].ready then
+    if (MaxDps:CheckSpellUsable(classtable.VoidBolt, 'VoidBolt')) and (InsanityDeficit >16 and cooldown[classtable.VoidBolt].remains <= 0.1 and buff[classtable.VoidformBuff].up) and cooldown[classtable.VoidBolt].ready then
         return classtable.VoidBolt
     end
     if (MaxDps:CheckSpellUsable(classtable.DevouringPlague, 'DevouringPlague')) and (debuff[classtable.DevouringPlagueDeBuff].count  <= 1 and debuff[classtable.DevouringPlagueDeBuff].remains <= gcd and ( not talents[classtable.VoidEruption] or cooldown[classtable.VoidEruption].remains >= gcd * 3 ) or InsanityDeficit <= 16) and cooldown[classtable.DevouringPlague].ready then
@@ -158,7 +158,7 @@ function Shadow:main()
     if (MaxDps:CheckSpellUsable(classtable.ShadowWordDeath, 'ShadowWordDeath')) and (GetTotemDuration('fiend') <= ( gcd + 1 ) and ( UnitExists('pet') and UnitName('pet')  == 'fiend' ) and talents[classtable.InescapableTorment] and targets <= 7) and cooldown[classtable.ShadowWordDeath].ready then
         return classtable.ShadowWordDeath
     end
-    if (MaxDps:CheckSpellUsable(classtable.VoidBolt, 'VoidBolt')) and (cooldown[classtable.VoidBolt].remains <= 0.1) and cooldown[classtable.VoidBolt].ready then
+    if (MaxDps:CheckSpellUsable(classtable.VoidBolt, 'VoidBolt')) and (cooldown[classtable.VoidBolt].remains <= 0.1 and buff[classtable.VoidformBuff].up) and cooldown[classtable.VoidBolt].ready then
         return classtable.VoidBolt
     end
     if (( buff[classtable.MindSpikeInsanityBuff].count >2 and talents[classtable.MindSpike] or buff[classtable.MindFlayInsanityBuff].count >2 and not talents[classtable.MindSpike] ) and talents[classtable.EmpoweredSurges] and not cooldown[classtable.VoidEruption].ready) then
@@ -391,7 +391,7 @@ function Priest:Shadow()
     classtable.ShadowformBuff = 232698
     classtable.VampiricTouchDeBuff = 34914
     classtable.EntropicRiftBuff = 0
-    classtable.VoidformBuff = 232698
+    classtable.VoidformBuff = 194249
     classtable.ShadowWordPainDeBuff = 589
     classtable.MindDevourerBuff = 373204
     classtable.DevouringPlagueDeBuff = 335467
