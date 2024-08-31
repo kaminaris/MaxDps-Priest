@@ -117,7 +117,7 @@ function Shadow:main()
     if targets <3 then
         dots_up = true--debuff[classtable.VampiricTouchDebuff].count  == targets or (classtable and classtable.ShadowCrash and GetSpellCooldown(classtable.ShadowCrash).duration >=5 ) and talents[classtable.WhisperingShadows]
     end
-    if talents[classtable.VoidBlast] and ( cooldown[classtable.VoidTorrent].remains <( (holding_crash and 1 or 0) * math.huge ) ) <= gcd * ( 1 + (talents[classtable.MindMelt] and talents[classtable.MindMelt] or 0) * 3 ) then
+    if talents[classtable.VoidBlast] and ( cooldown[classtable.VoidTorrent].remains <( (holding_crash and 1 or 0) * math.huge ) and 1 or 0) <= gcd * ( 1 + (talents[classtable.MindMelt] and talents[classtable.MindMelt] or 0) * 3 ) then
         pooling_mindblasts = 1
     else
         pooling_mindblasts = 0
@@ -404,7 +404,7 @@ function Priest:Shadow()
     classtable.Mindbender = talents[200174] and 200174 or 34433
     classtable.MindFlayInsanity = 391403
     classtable.MindSpikeInsanity = 407466
-    classtable.ShadowCrash = MaxDps:FindSpell(205385) and 205385 or MaxDps:FindSpell(457042) and 457042
+    classtable.ShadowCrash = MaxDps:FindSpell(205385) and 205385 or MaxDps:FindSpell(457042) and 457042 or 205385
 
     local precombatCheck = Shadow:precombat()
     if precombatCheck then
