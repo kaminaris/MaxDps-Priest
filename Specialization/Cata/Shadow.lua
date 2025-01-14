@@ -62,6 +62,7 @@ local InsanityDeficit
 local Mana
 local ManaMax
 local ManaDeficit
+local ManaPerc
 
 local Shadow = {}
 
@@ -111,13 +112,13 @@ function Shadow:st()
     if (MaxDps:CheckSpellUsable(classtable.Shadowfiend, 'Shadowfiend')) and (not UnitExists('pet') and timeInCombat <5) and cooldown[classtable.Shadowfiend].ready then
         if not setSpell then setSpell = classtable.Shadowfiend end
     end
-    if (MaxDps:CheckSpellUsable(classtable.MindFlay, 'MindFlay')) and (debuff[classtable.ShadowWordPainDeBuff].up and debuff[classtable.ShadowWordPainDeBuff].remains <gcd + latency) and cooldown[classtable.MindFlay].ready then
+    if (MaxDps:CheckSpellUsable(classtable.MindFlay, 'MindFlay')) and (debuff[classtable.ShadowWordPainDeBuff].up and debuff[classtable.ShadowWordPainDeBuff].remains <gcd + 1) and cooldown[classtable.MindFlay].ready then
         if not setSpell then setSpell = classtable.MindFlay end
     end
     if (MaxDps:CheckSpellUsable(classtable.ShadowWordPain, 'ShadowWordPain')) and (not debuff[classtable.ShadowWordPainDeBuff].up) and cooldown[classtable.ShadowWordPain].ready then
         if not setSpell then setSpell = classtable.ShadowWordPain end
     end
-    if (MaxDps:CheckSpellUsable(classtable.MindFlay, 'MindFlay')) and (not ( buff[classtable.ShadowOrbBuff].count >= 1 and buff[classtable.DarkEvangelismBuff].count >= 5 ) and timeInCombat <= ( 2 * gcd + 2.5 * action.mind_flay.duration )) and cooldown[classtable.MindFlay].ready then
+    if (MaxDps:CheckSpellUsable(classtable.MindFlay, 'MindFlay')) and (not ( buff[classtable.ShadowOrbBuff].count >= 1 and buff[classtable.DarkEvangelismBuff].count >= 5 ) and timeInCombat <= ( 2 * gcd + 2.5 * 3 )) and cooldown[classtable.MindFlay].ready then
         if not setSpell then setSpell = classtable.MindFlay end
     end
     if (MaxDps:CheckSpellUsable(classtable.MindBlast, 'MindBlast')) and (buff[classtable.ShadowOrbBuff].up) and cooldown[classtable.MindBlast].ready then
@@ -164,7 +165,7 @@ function Shadow:aoe()
     if (MaxDps:CheckSpellUsable(classtable.MindBlast, 'MindBlast')) and (buff[classtable.ShadowOrbBuff].up) and cooldown[classtable.MindBlast].ready then
         if not setSpell then setSpell = classtable.MindBlast end
     end
-    if (MaxDps:CheckSpellUsable(classtable.MindFlay, 'MindFlay')) and (debuff[classtable.ShadowWordPainDeBuff].up and debuff[classtable.ShadowWordPainDeBuff].remains <gcd + latency) and cooldown[classtable.MindFlay].ready then
+    if (MaxDps:CheckSpellUsable(classtable.MindFlay, 'MindFlay')) and (debuff[classtable.ShadowWordPainDeBuff].up and debuff[classtable.ShadowWordPainDeBuff].remains <gcd + 1) and cooldown[classtable.MindFlay].ready then
         if not setSpell then setSpell = classtable.MindFlay end
     end
     if (MaxDps:CheckSpellUsable(classtable.ShadowWordDeath, 'ShadowWordDeath')) and (targetHP <25 and targets <4 or ManaPerc <15) and cooldown[classtable.ShadowWordDeath].ready then
@@ -201,6 +202,7 @@ function Priest:Shadow()
     Mana = UnitPower('player', ManaPT)
     ManaMax = UnitPowerMax('player', ManaPT)
     ManaDeficit = ManaMax - Mana
+    ManaPerc = (Mana / ManaMax) * 100
     targetHP = UnitHealth('target')
     targetmaxHP = UnitHealthMax('target')
     targethealthPerc = (targetHP >0 and targetmaxHP >0 and (targetHP / targetmaxHP) * 100) or 100
