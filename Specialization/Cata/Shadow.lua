@@ -95,10 +95,10 @@ function Shadow:precombat()
     if (MaxDps:CheckSpellUsable(classtable.PowerWordFortitude, 'PowerWordFortitude')) and (not buff[classtable.PowerWordFortitudeBuff].up) and cooldown[classtable.PowerWordFortitude].ready and not UnitAffectingCombat('player') then
         if not setSpell then setSpell = classtable.PowerWordFortitude end
     end
-    if (MaxDps:CheckSpellUsable(classtable.InnerFire, 'InnerFire')) and (not buff[classtable.InnerFire].up) and cooldown[classtable.InnerFire].ready and not UnitAffectingCombat('player') then
+    if (MaxDps:CheckSpellUsable(classtable.InnerFire, 'InnerFire')) and (not buff[classtable.InnerFireBuff].up) and cooldown[classtable.InnerFire].ready and not UnitAffectingCombat('player') then
         if not setSpell then setSpell = classtable.InnerFire end
     end
-    if (MaxDps:CheckSpellUsable(classtable.VampiricEmbrace, 'VampiricEmbrace')) and (not buff[classtable.VampiricEmbrace].up) and cooldown[classtable.VampiricEmbrace].ready and not UnitAffectingCombat('player') then
+    if (MaxDps:CheckSpellUsable(classtable.VampiricEmbrace, 'VampiricEmbrace')) and (not buff[classtable.VampiricEmbraceBuff].up) and cooldown[classtable.VampiricEmbrace].ready and not UnitAffectingCombat('player') then
         if not setSpell then setSpell = classtable.VampiricEmbrace end
     end
     if (MaxDps:CheckSpellUsable(classtable.MindSpike, 'MindSpike')) and cooldown[classtable.MindSpike].ready and not UnitAffectingCombat('player') then
@@ -118,16 +118,16 @@ function Shadow:st()
     if (MaxDps:CheckSpellUsable(classtable.ShadowWordPain, 'ShadowWordPain')) and (not debuff[classtable.ShadowWordPainDeBuff].up) and cooldown[classtable.ShadowWordPain].ready then
         if not setSpell then setSpell = classtable.ShadowWordPain end
     end
-    if (MaxDps:CheckSpellUsable(classtable.MindFlay, 'MindFlay')) and (not ( buff[classtable.ShadowOrbBuff].count >= 1 and buff[classtable.DarkEvangelismBuff].count >= 5 ) and timeInCombat <= ( 2 * gcd + 2.5 * 3 )) and cooldown[classtable.MindFlay].ready then
+    if (MaxDps:CheckSpellUsable(classtable.MindFlay, 'MindFlay')) and (not ( buff[classtable.ShadowOrbBuff].count >= 1 and buff[classtable.DarkEvangelismBuff].count >= 5 ) and timeInCombat <= ( 2 * gcd + 2.5 * ( classtable and classtable.MindFlay and GetSpellInfo(classtable.MindFlay).castTime / 1000 or 0) )) and cooldown[classtable.MindFlay].ready then
         if not setSpell then setSpell = classtable.MindFlay end
     end
     if (MaxDps:CheckSpellUsable(classtable.MindBlast, 'MindBlast')) and (buff[classtable.ShadowOrbBuff].up) and cooldown[classtable.MindBlast].ready then
         if not setSpell then setSpell = classtable.MindBlast end
     end
-    if (MaxDps:CheckSpellUsable(classtable.VampiricTouch, 'VampiricTouch')) and (debuff[classtable.VampiricTouchDeBuff].remains <debuff[classtable.VampiricTouchDeBuff].tick_time) and cooldown[classtable.VampiricTouch].ready then
+    if (MaxDps:CheckSpellUsable(classtable.VampiricTouch, 'VampiricTouch')) and (debuff[classtable.VampiricTouchDeBuff].remains <1) and cooldown[classtable.VampiricTouch].ready then
         if not setSpell then setSpell = classtable.VampiricTouch end
     end
-    if (MaxDps:CheckSpellUsable(classtable.DevouringPlague, 'DevouringPlague')) and (debuff[classtable.DevouringPlagueDeBuff].remains <debuff[classtable.DevouringPlagueDeBuff].tick_time) and cooldown[classtable.DevouringPlague].ready then
+    if (MaxDps:CheckSpellUsable(classtable.DevouringPlague, 'DevouringPlague')) and (debuff[classtable.DevouringPlagueDeBuff].remains <1) and cooldown[classtable.DevouringPlague].ready then
         if not setSpell then setSpell = classtable.DevouringPlague end
     end
     if (MaxDps:CheckSpellUsable(classtable.MindBlast, 'MindBlast')) and cooldown[classtable.MindBlast].ready then
@@ -139,7 +139,7 @@ function Shadow:st()
     if (MaxDps:CheckSpellUsable(classtable.Shadowfiend, 'Shadowfiend')) and (not UnitExists('pet')) and cooldown[classtable.Shadowfiend].ready then
         if not setSpell then setSpell = classtable.Shadowfiend end
     end
-    if (MaxDps:CheckSpellUsable(classtable.ShadowWordDeath, 'ShadowWordDeath')) and (targetHP <25 or ManaPerc <20) and cooldown[classtable.ShadowWordDeath].ready then
+    if (MaxDps:CheckSpellUsable(classtable.ShadowWordDeath, 'ShadowWordDeath')) and (targethealthPerc <25 or ManaPerc <20) and cooldown[classtable.ShadowWordDeath].ready then
         if not setSpell then setSpell = classtable.ShadowWordDeath end
     end
     if (MaxDps:CheckSpellUsable(classtable.Dispersion, 'Dispersion')) and (ManaPerc <10) and cooldown[classtable.Dispersion].ready then
@@ -153,13 +153,13 @@ function Shadow:aoe()
     if (MaxDps:CheckSpellUsable(classtable.MindSear, 'MindSear')) and (targets >5) and cooldown[classtable.MindSear].ready then
         if not setSpell then setSpell = classtable.MindSear end
     end
-    if (MaxDps:CheckSpellUsable(classtable.ShadowWordPain, 'ShadowWordPain')) and (false and debuff[classtable.ShadowWordPainDeBuff].remains <debuff[classtable.ShadowWordPainDeBuff].tick_time) and cooldown[classtable.ShadowWordPain].ready then
+    if (MaxDps:CheckSpellUsable(classtable.ShadowWordPain, 'ShadowWordPain')) and (false and debuff[classtable.ShadowWordPainDeBuff].remains <1) and cooldown[classtable.ShadowWordPain].ready then
         if not setSpell then setSpell = classtable.ShadowWordPain end
     end
-    if (MaxDps:CheckSpellUsable(classtable.VampiricTouch, 'VampiricTouch')) and (false and debuff[classtable.VampiricTouchDeBuff].remains <debuff[classtable.VampiricTouchDeBuff].tick_time and ttd >= debuff[classtable.VampiricTouchDeBuff].duration) and cooldown[classtable.VampiricTouch].ready then
+    if (MaxDps:CheckSpellUsable(classtable.VampiricTouch, 'VampiricTouch')) and (false and debuff[classtable.VampiricTouchDeBuff].remains <1 and ttd >= debuff[classtable.VampiricTouchDeBuff].duration) and cooldown[classtable.VampiricTouch].ready then
         if not setSpell then setSpell = classtable.VampiricTouch end
     end
-    if (MaxDps:CheckSpellUsable(classtable.DevouringPlague, 'DevouringPlague')) and (false and debuff[classtable.DevouringPlagueDeBuff].remains <debuff[classtable.DevouringPlagueDeBuff].tick_time) and cooldown[classtable.DevouringPlague].ready then
+    if (MaxDps:CheckSpellUsable(classtable.DevouringPlague, 'DevouringPlague')) and (false and debuff[classtable.DevouringPlagueDeBuff].remains <1) and cooldown[classtable.DevouringPlague].ready then
         if not setSpell then setSpell = classtable.DevouringPlague end
     end
     if (MaxDps:CheckSpellUsable(classtable.MindBlast, 'MindBlast')) and (buff[classtable.ShadowOrbBuff].up) and cooldown[classtable.MindBlast].ready then
@@ -168,7 +168,7 @@ function Shadow:aoe()
     if (MaxDps:CheckSpellUsable(classtable.MindFlay, 'MindFlay')) and (debuff[classtable.ShadowWordPainDeBuff].up and debuff[classtable.ShadowWordPainDeBuff].remains <gcd + 1) and cooldown[classtable.MindFlay].ready then
         if not setSpell then setSpell = classtable.MindFlay end
     end
-    if (MaxDps:CheckSpellUsable(classtable.ShadowWordDeath, 'ShadowWordDeath')) and (targetHP <25 and targets <4 or ManaPerc <15) and cooldown[classtable.ShadowWordDeath].ready then
+    if (MaxDps:CheckSpellUsable(classtable.ShadowWordDeath, 'ShadowWordDeath')) and (targethealthPerc <25 and targets <4 or ManaPerc <15) and cooldown[classtable.ShadowWordDeath].ready then
         if not setSpell then setSpell = classtable.ShadowWordDeath end
     end
     if (MaxDps:CheckSpellUsable(classtable.MindSear, 'MindSear')) and cooldown[classtable.MindSear].ready then
@@ -202,7 +202,6 @@ function Priest:Shadow()
     Mana = UnitPower('player', ManaPT)
     ManaMax = UnitPowerMax('player', ManaPT)
     ManaDeficit = ManaMax - Mana
-    ManaPerc = (Mana / ManaMax) * 100
     targetHP = UnitHealth('target')
     targetmaxHP = UnitHealthMax('target')
     targethealthPerc = (targetHP >0 and targetmaxHP >0 and (targetHP / targetmaxHP) * 100) or 100
@@ -216,30 +215,26 @@ function Priest:Shadow()
     Insanity = UnitPower('player', InsanityPT)
     InsanityMax = UnitPowerMax('player', InsanityPT)
     InsanityDeficit = InsanityMax - Insanity
+    ManaPerc = (Mana / ManaMax) * 100
     --for spellId in pairs(MaxDps.Flags) do
     --    self.Flags[spellId] = false
     --    self:ClearGlowIndependent(spellId, spellId)
     --end
-    classtable.ShadowformBuff = 15473
-    classtable.PowerWordFortitudeBuff = 79105
-    classtable.MindSpikeDeBuff = 73510
     classtable.MindSpikeDeBuff = 73510
     classtable.ShadowWordPainDeBuff = 589
     classtable.DevouringPlagueDeBuff = 2944
     classtable.VampiricTouchDeBuff = 34914
-    classtable.ShadowOrbBuff = 77487
-    classtable.DarkEvangelismBuff = 87118
     classtable.Shadowform = 15473
     classtable.PowerWordFortitude = 79105
     classtable.InnerFire = 588
     classtable.VampiricEmbrace = 15286
     classtable.MindSpike = 73510
-    classtable.ShadowWordPain = 589
-    classtable.DevouringPlague = 2944
-    classtable.VampiricTouch = 34914
     classtable.Shadowfiend = 34433
     classtable.MindFlay = 15407
+    classtable.ShadowWordPain = 589
     classtable.MindBlast = 8092
+    classtable.VampiricTouch = 34914
+    classtable.DevouringPlague = 2944
     classtable.Archangel = 87151
     classtable.ShadowWordDeath = 32379
     classtable.Dispersion = 47585
