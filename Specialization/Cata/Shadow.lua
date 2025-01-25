@@ -222,10 +222,6 @@ function Priest:Shadow()
     --end
     classtable.ShadowformBuff = 15473
     classtable.PowerWordFortitudeBuff = 79105
-    classtable.MindSpikeBuff = 73510
-    classtable.ShadowWordPainBuff = 589
-    classtable.DevouringPlagueBuff = 2944
-    classtable.VampiricTouchBuff = 34914
     classtable.ShadowOrbBuff = 77487
     classtable.DarkEvangelismBuff = 87118
     classtable.MindSpikeDeBuff = 73510
