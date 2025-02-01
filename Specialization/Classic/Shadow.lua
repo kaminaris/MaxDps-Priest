@@ -67,7 +67,7 @@ local ManaPerc
 local Shadow = {}
 
 function Shadow:st()
-    if (MaxDps:CheckSpellUsable(classtable.ShadowWordPain, 'Shadow Word: Pain')) and (not debuff[classtable.ShadowWordPain].up or debuff[classtable.ShadowWordPain].refreshable) and cooldown[classtable.ShadowWordPain].ready then
+    if (MaxDps:CheckSpellUsable(classtable.ShadowWordPain, 'Shadow Word: Pain')) and (not MaxDps:FindADAuraData(classtable.ShadowWordPain).up or MaxDps:FindADAuraData(classtable.ShadowWordPain).refreshable) and cooldown[classtable.ShadowWordPain].ready then
         if not setSpell then setSpell = classtable.ShadowWordPain end
     end
     if (MaxDps:CheckSpellUsable(classtable.InnerFocus, 'InnerFocus')) and cooldown[classtable.MindBlast].ready and cooldown[classtable.InnerFocus].ready then
@@ -134,8 +134,6 @@ function Priest:Shadow()
 
     setSpell = nil
     ClearCDs()
-
-    Shadow:precombat()
 
     Shadow:callaction()
     if setSpell then return setSpell end
