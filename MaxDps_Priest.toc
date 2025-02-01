@@ -23,3 +23,9 @@ Specialization/Shadow.lua
 #@version-cata@
 Specialization/Cata/Shadow.lua
 #@end-version-cata@
+
+#@version-classic@
+Specialization/Classic/Discipline.lua
+Specialization/Classic/Holy.lua
+Specialization/Classic/Shadow.lua
+#@end-version-classic@
