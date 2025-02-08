@@ -220,11 +220,13 @@ function Priest:Shadow()
     --    self.Flags[spellId] = false
     --    self:ClearGlowIndependent(spellId, spellId)
     --end
+    classtable.InnerFireBuff = 588
+    classtable.VampiricEmbraceBuff = 15286
     classtable.ShadowformBuff = 15473
     classtable.PowerWordFortitudeBuff = 79105
     classtable.ShadowOrbBuff = 77487
     classtable.DarkEvangelismBuff = 87118
-    classtable.MindSpikeDeBuff = 73510
+    classtable.MindSpikeDeBuff = 87178
     classtable.ShadowWordPainDeBuff = 589
     classtable.DevouringPlagueDeBuff = 2944
     classtable.VampiricTouchDeBuff = 34914
