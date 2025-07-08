@@ -38,6 +38,7 @@ local EssencePT = Enum.PowerType.Essence
 local RuneBloodPT = Enum.PowerType.RuneBlood
 local RuneFrostPT = Enum.PowerType.RuneFrost
 local RuneUnholyPT = Enum.PowerType.RuneUnholy
+local ShadowOrbsPT = Enum.PowerType.ShadowOrbs
 
 local fd
 local ttd
@@ -59,6 +60,7 @@ local className, classFilename, classId = UnitClass('player')
 local classtable
 local LibRangeCheck = LibStub('LibRangeCheck-3.0', true)
 
+local ShadowOrbs
 local Insanity
 local InsanityMax
 local InsanityDeficit
@@ -70,18 +72,18 @@ local ManaPerc
 local Shadow = {}
 
 function Shadow:precombat()
-    if (MaxDps:CheckSpellUsable(classtable.PowerWordFortitude, 'PowerWordFortitude')) and (not aura.stamina.up) and cooldown[classtable.PowerWordFortitude].ready and not UnitAffectingCombat('player') then
+    if (MaxDps:CheckSpellUsable(classtable.PowerWordFortitude, 'PowerWordFortitude')) and (not buff[classtable.PowerWordFortitudeBuff].up) and cooldown[classtable.PowerWordFortitude].ready and not UnitAffectingCombat('player') then
         if not setSpell then setSpell = classtable.PowerWordFortitude end
     end
-    if (MaxDps:CheckSpellUsable(classtable.InnerFire, 'InnerFire')) and cooldown[classtable.InnerFire].ready and not UnitAffectingCombat('player') then
+    if (MaxDps:CheckSpellUsable(classtable.InnerFire, 'InnerFire')) and (not buff[classtable.InnerFireBuff].up) and cooldown[classtable.InnerFire].ready and not UnitAffectingCombat('player') then
         if not setSpell then setSpell = classtable.InnerFire end
     end
-    if (MaxDps:CheckSpellUsable(classtable.Shadowform, 'Shadowform')) and cooldown[classtable.Shadowform].ready and not UnitAffectingCombat('player') then
+    if (MaxDps:CheckSpellUsable(classtable.Shadowform, 'Shadowform')) and (not buff[classtable.ShadowformBuff].up) and cooldown[classtable.Shadowform].ready and not UnitAffectingCombat('player') then
         if not setSpell then setSpell = classtable.Shadowform end
     end
-    if (MaxDps:CheckSpellUsable(classtable.VolcanicPotion, 'VolcanicPotion')) and cooldown[classtable.VolcanicPotion].ready and not UnitAffectingCombat('player') then
-        if not setSpell then setSpell = classtable.VolcanicPotion end
-    end
+    --if (MaxDps:CheckSpellUsable(classtable.VolcanicPotion, 'VolcanicPotion')) and cooldown[classtable.VolcanicPotion].ready and not UnitAffectingCombat('player') then
+    --    if not setSpell then setSpell = classtable.VolcanicPotion end
+    --end
 end
 
 
@@ -90,10 +92,10 @@ local function ClearCDs()
 end
 
 function Shadow:callaction()
-    if (MaxDps:CheckSpellUsable(classtable.VolcanicPotion, 'VolcanicPotion')) and (MaxDps:Bloodlust(1) or ttd <= 40) and cooldown[classtable.VolcanicPotion].ready then
-        if not setSpell then setSpell = classtable.VolcanicPotion end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.DevouringPlague, 'DevouringPlague')) and (shadow_orb == 3 and ( cooldown[classtable.MindBlast].remains <2 or targethealthPerc <20 )) and cooldown[classtable.DevouringPlague].ready then
+    --if (MaxDps:CheckSpellUsable(classtable.VolcanicPotion, 'VolcanicPotion')) and (MaxDps:Bloodlust(1) or ttd <= 40) and cooldown[classtable.VolcanicPotion].ready then
+    --    if not setSpell then setSpell = classtable.VolcanicPotion end
+    --end
+    if (MaxDps:CheckSpellUsable(classtable.DevouringPlague, 'DevouringPlague')) and (ShadowOrbs == 3 and ( cooldown[classtable.MindBlast].remains <2 or targethealthPerc <20 )) and cooldown[classtable.DevouringPlague].ready then
         if not setSpell then setSpell = classtable.DevouringPlague end
     end
     if (MaxDps:CheckSpellUsable(classtable.ShadowWordDeath, 'ShadowWordDeath')) and (targets <= 5 and ( (MaxDps.tier and MaxDps.tier[13].count >= 2 and 1 or 0) == 1 )) and cooldown[classtable.ShadowWordDeath].ready then
@@ -111,7 +113,7 @@ function Shadow:callaction()
     if (MaxDps:CheckSpellUsable(classtable.VampiricTouch, 'VampiricTouch')) and (( not debuff[classtable.VampiricTouchDeBuff].up or debuff[classtable.VampiricTouchDeBuff].remains <( classtable and classtable.VampiricTouch and GetSpellInfo(classtable.VampiricTouch).castTime /1000 or 0) + 1 ) and true) and cooldown[classtable.VampiricTouch].ready then
         if not setSpell then setSpell = classtable.VampiricTouch end
     end
-    if (MaxDps:CheckSpellUsable(classtable.DevouringPlague, 'DevouringPlague')) and (shadow_orb == 3) and cooldown[classtable.DevouringPlague].ready then
+    if (MaxDps:CheckSpellUsable(classtable.DevouringPlague, 'DevouringPlague')) and (ShadowOrbs == 3) and cooldown[classtable.DevouringPlague].ready then
         if not setSpell then setSpell = classtable.DevouringPlague end
     end
     if (MaxDps:CheckSpellUsable(classtable.MindSpike, 'MindSpike')) and (targets <= 6 and buff[classtable.SurgeofDarknessBuff].up) and cooldown[classtable.MindSpike].ready then
@@ -164,6 +166,7 @@ function Priest:Shadow()
     SpellCrit = GetCritChance()
     Insanity = UnitPower('player', InsanityPT)
     InsanityMax = UnitPowerMax('player', InsanityPT)
+    ShadowOrbs = UnitPower('player', ShadowOrbsPT)
     InsanityDeficit = InsanityMax - Insanity
     ManaPerc = (Mana / ManaMax) * 100
     --for spellId in pairs(MaxDps.Flags) do
@@ -174,6 +177,15 @@ function Priest:Shadow()
     local function debugg()
     end
 
+    classtable.MindFlay = 15407
+
+    classtable.PowerWordFortitudeBuff = 21562
+    classtable.InnerFireBuff = 588
+    classtable.ShadowformBuff = 15473
+    classtable.SurgeofDarknessBuff = 87160
+    classtable.DivineInsightShadowBuff = 124430
+    classtable.ShadowWordPainDeBuff = 589
+    classtable.VampiricTouchDeBuff = 34914
 
     --if MaxDps.db.global.debugMode then
     --   debugg()
