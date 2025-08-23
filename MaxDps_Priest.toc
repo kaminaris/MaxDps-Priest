@@ -32,5 +32,7 @@ Specialization/Classic/Shadow.lua
 #@end-version-classic@
 
 #@version-mists@
+Specialization/Mop/Discipline.lua
+Specialization/Mop/Holy.lua
 Specialization/Mop/Shadow.lua
 #@end-version-mists@
