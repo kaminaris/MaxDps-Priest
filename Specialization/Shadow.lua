@@ -182,7 +182,7 @@ function Shadow:precombat()
     is_vt_possible = false
     pooling_mindblasts = 0
     if (MaxDps:CheckSpellUsable(classtable.Halo, 'Halo')) and (MaxDps:boss() and targets <= 4 and (ttd >= 120 or targets <= 2) and not talents[classtable.PowerSurge]) and cooldown[classtable.Halo].ready and not UnitAffectingCombat('player') then
-        if not setSpell then setSpell = classtable.Halo end
+        MaxDps:GlowCooldown(classtable.Halo, cooldown[classtable.Halo].ready)
     end
     if (MaxDps:CheckSpellUsable(classtable.ShadowCrash, 'ShadowCrash') and talents[classtable.ShadowCrash]) and (targets <= 12) and cooldown[classtable.ShadowCrash].ready and not UnitAffectingCombat('player') then
         if not setSpell then setSpell = classtable.ShadowCrash end
@@ -206,8 +206,8 @@ function Shadow:aoe_variables()
     if ttd >= 18 then
         is_vt_possible = true
     end
-    dots_up = (MaxDps:DebuffCounter(classtable.VampiricTouchDeBuff) + 8*(((MaxDps.spellHistory[1] == classtable.ShadowCrash) and talents[classtable.ShadowCrash]) and 1 or 0))>=max_vts or not is_vt_possible
-    if holding_crash and action.shadow_crash.enabled and (targets >1) then
+    dots_up = (MaxDps:DebuffCounter(classtable.VampiricTouchDeBuff) + 8*(((MaxDps.spellHistory[1] == classtable.ShadowCrash) and IsSpellKnownOrOverridesKnown(classtable.ShadowCrash)) and 1 or 0))>=max_vts or not is_vt_possible
+    if holding_crash and IsSpellKnownOrOverridesKnown(classtable.ShadowCrash) and (targets >1) then
         holding_crash = (max_vts - MaxDps:DebuffCounter(classtable.VampiricTouchDeBuff))<4 and math.huge >15 or math.huge <10 and targets>(max_vts - MaxDps:DebuffCounter(classtable.VampiricTouchDeBuff))
     end
     manual_vts_applied = (MaxDps:DebuffCounter(classtable.VampiricTouchDeBuff) + 8*(holding_crash and 0 or 1))>=max_vts or not is_vt_possible
@@ -217,22 +217,22 @@ function Shadow:cds()
         MaxDps:GlowCooldown(classtable.PowerInfusion, cooldown[classtable.PowerInfusion].ready)
     end
     if (MaxDps:CheckSpellUsable(classtable.Halo, 'Halo')) and (talents[classtable.PowerSurge] and (( UnitExists('pet') and UnitName('pet')  == 'Fiend' ) and cooldown[classtable.Fiend].remains >= 4 and talents[classtable.Mindbender] or not talents[classtable.Mindbender] and not cooldown[classtable.Fiend].ready or targets >2 and not talents[classtable.InescapableTorment] or not talents[classtable.DarkAscension]) and (cooldown[classtable.MindBlast].charges == 0 or not cooldown[classtable.VoidTorrent].ready or not talents[classtable.VoidEruption] or cooldown[classtable.VoidEruption].remains >= gcd*4 or buff[classtable.MindDevourerBuff].up and talents[classtable.MindDevourer])) and cooldown[classtable.Halo].ready then
-        if not setSpell then setSpell = classtable.Halo end
+        MaxDps:GlowCooldown(classtable.Halo, cooldown[classtable.Halo].ready)
     end
     if (MaxDps:CheckSpellUsable(classtable.VoidEruption, 'VoidEruption') and talents[classtable.VoidEruption]) and ((( UnitExists('pet') and UnitName('pet')  == 'Fiend' ) and cooldown[classtable.Fiend].remains >= 4 or not talents[classtable.Mindbender] and not cooldown[classtable.Fiend].ready or targets >2 and not talents[classtable.InescapableTorment]) and (cooldown[classtable.MindBlast].charges == 0 or timeInCombat >15 or buff[classtable.MindDevourerBuff].up and talents[classtable.MindDevourer] or buff[classtable.PowerSurgeBuff].up)) and cooldown[classtable.VoidEruption].ready then
-        if not setSpell then setSpell = classtable.VoidEruption end
+        MaxDps:GlowCooldown(classtable.VoidEruption, cooldown[classtable.VoidEruption].ready)
     end
     if (MaxDps:CheckSpellUsable(classtable.DarkAscension, 'DarkAscension') and talents[classtable.DarkAscension]) and ((( UnitExists('pet') and UnitName('pet')  == 'Fiend' ) and cooldown[classtable.Fiend].remains >= 4 or not talents[classtable.Mindbender] and not cooldown[classtable.Fiend].ready or targets >2 and not talents[classtable.InescapableTorment]) and (MaxDps:DebuffCounter(classtable.DevouringPlagueDeBuff) >= 1 or Insanity>=(20-(5 * (talents[classtable.MindsEye] and talents[classtable.MindsEye] or 0))+(5 * (talents[classtable.DistortedReality] and talents[classtable.DistortedReality] or 0))-(( UnitExists('pet') and UnitName('pet')  == 'Fiend' and 1 or 0) * 2)))) and cooldown[classtable.DarkAscension].ready then
         if not setSpell then setSpell = classtable.DarkAscension end
     end
     Shadow:trinkets()
     if (MaxDps:CheckSpellUsable(classtable.DesperatePrayer, 'DesperatePrayer')) and (healthPerc <= 75) and cooldown[classtable.DesperatePrayer].ready then
-        if not setSpell then setSpell = classtable.DesperatePrayer end
+        MaxDps:GlowCooldown(classtable.DesperatePrayer, cooldown[classtable.DesperatePrayer].ready)
     end
 end
 function Shadow:heal_for_tof()
     if (MaxDps:CheckSpellUsable(classtable.Halo, 'Halo')) and cooldown[classtable.Halo].ready then
-        if not setSpell then setSpell = classtable.Halo end
+        MaxDps:GlowCooldown(classtable.Halo, cooldown[classtable.Halo].ready)
     end
     if (MaxDps:CheckSpellUsable(classtable.DivineStar, 'DivineStar')) and cooldown[classtable.DivineStar].ready then
         if not setSpell then setSpell = classtable.DivineStar end
@@ -278,7 +278,7 @@ function Shadow:main()
     if (MaxDps:CheckSpellUsable(classtable.ShadowCrash, 'ShadowCrash') and talents[classtable.ShadowCrash]) and (not holding_crash and not (MaxDps.spellHistory[1] == classtable.ShadowCrash)) and cooldown[classtable.ShadowCrash].ready then
         if not setSpell then setSpell = classtable.ShadowCrash end
     end
-    if (MaxDps:CheckSpellUsable(classtable.VampiricTouch, 'VampiricTouch')) and (debuff[classtable.VampiricTouchDeBuff].refreshable and ttd >12 and (debuff[classtable.VampiricTouchDeBuff].up or not dots_up) and (max_vts >0 or targets == 1) and (cooldown[classtable.ShadowCrash].remains >= debuff[classtable.VampiricTouchDeBuff].remains or holding_crash or not talents[classtable.ShadowCrash]) and (not (MaxDps.spellHistory[1] == classtable.ShadowCrash))) and cooldown[classtable.VampiricTouch].ready then
+    if (MaxDps:CheckSpellUsable(classtable.VampiricTouch, 'VampiricTouch')) and (debuff[classtable.VampiricTouchDeBuff].refreshable and ttd >12 and (debuff[classtable.VampiricTouchDeBuff].up or not dots_up) and (max_vts >0 or targets == 1) and (cooldown[classtable.ShadowCrash].remains >= debuff[classtable.VampiricTouchDeBuff].remains or holding_crash or not IsSpellKnownOrOverridesKnown(classtable.ShadowCrash)) and (not (MaxDps.spellHistory[1] == classtable.ShadowCrash))) and cooldown[classtable.VampiricTouch].ready then
         if not setSpell then setSpell = classtable.VampiricTouch end
     end
     if (MaxDps:CheckSpellUsable(classtable.MindBlast, 'MindBlast')) and ((not buff[classtable.MindDevourerBuff].up or not talents[classtable.MindDevourer] or cooldown[classtable.VoidEruption].ready and talents[classtable.VoidEruption])) and cooldown[classtable.MindBlast].ready then
@@ -291,7 +291,7 @@ function Shadow:main()
         if not setSpell then setSpell = classtable.DevouringPlague end
     end
     if (MaxDps:CheckSpellUsable(classtable.Halo, 'Halo')) and (targets >1) and cooldown[classtable.Halo].ready then
-        if not setSpell then setSpell = classtable.Halo end
+        MaxDps:GlowCooldown(classtable.Halo, cooldown[classtable.Halo].ready)
     end
     if (MaxDps:CheckSpellUsable(classtable.ShadowCrash, 'ShadowCrash') and talents[classtable.ShadowCrash]) and (not holding_crash and math.huge >= 30 and talents[classtable.DescendingDarkness] and math.huge >= 30) and cooldown[classtable.ShadowCrash].ready then
         if not setSpell then setSpell = classtable.ShadowCrash end
@@ -326,8 +326,11 @@ end
 
 
 local function ClearCDs()
+    MaxDps:GlowCooldown(classtable.Halo, false)
     MaxDps:GlowCooldown(classtable.Silence, false)
     MaxDps:GlowCooldown(classtable.PowerInfusion, false)
+    MaxDps:GlowCooldown(classtable.VoidEruption, false)
+    MaxDps:GlowCooldown(classtable.DesperatePrayer, false)
     MaxDps:GlowCooldown(classtable.hyperthread_wristwraps, false)
     MaxDps:GlowCooldown(classtable.aberrant_spellforge, false)
     MaxDps:GlowCooldown(classtable.neural_synapse_enhancer, false)
