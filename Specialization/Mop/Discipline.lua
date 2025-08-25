@@ -160,8 +160,8 @@ function Priest:Discipline()
     setSpell = nil
     ClearCDs()
 
-    Shadow:precombat()
+    Discipline:precombat()
 
-    Shadow:callaction()
+    Discipline:callaction()
     if setSpell then return setSpell end
 end
