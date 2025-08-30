@@ -152,6 +152,7 @@ function Priest:Discipline()
     classtable.DivineInsightShadowBuff = 124430
     classtable.ShadowWordPainDeBuff = 589
     classtable.VampiricTouchDeBuff = 34914
+    classtable.PowerWordSolace = 129250
 
     --if MaxDps.db.global.debugMode then
     --   debugg()
