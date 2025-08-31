@@ -103,6 +103,8 @@ function Priest:Holy()
     SpellCrit = GetCritChance()
     ManaPerc = (Mana / ManaMax) * 100
 
+    classtable.Chastise = 88625
+
     setSpell = nil
     ClearCDs()
 
