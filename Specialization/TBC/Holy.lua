@@ -64,38 +64,36 @@ local ManaMax
 local ManaDeficit
 local ManaPerc
 
-local Shadow = {}
+local Holy = {}
 
 local function ClearCDs()
 end
 
---function Shadow:st()
---end
+function Holy:AoE()
+    if (MaxDps:CheckSpellUsable(classtable.HolyNova, 'HolyNova')) and cooldown[classtable.HolyNova].ready then
+        if not setSpell then setSpell = classtable.HolyNova end
+    end
+end
 
-function Shadow:callaction()
-    if (MaxDps:CheckSpellUsable(classtable.Shadowform, 'Shadowform')) and (not buff[classtable.Shadowform].up) and cooldown[classtable.Shadowform].ready then
-        if not setSpell then setSpell = classtable.Shadowform end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.VampiricEmbrace, 'VampiricEmbrace')) and ttd >= 60 and cooldown[classtable.VampiricEmbrace].ready then
-        if not setSpell then setSpell = classtable.VampiricEmbrace end
-    end
-    if (MaxDps:CheckSpellUsable(classtable.VampiricTouch, 'VampiricTouch')) and (MaxDps:FindDeBuffAuraData(classtable.VampiricTouch).refreshable) and cooldown[classtable.VampiricTouch].ready then
-        if not setSpell then setSpell = classtable.VampiricTouch end
-    end
+function Holy:st()
     if (MaxDps:CheckSpellUsable(classtable.ShadowWordPain, 'ShadowWordPain')) and (MaxDps:FindDeBuffAuraData(classtable.ShadowWordPain).refreshable) and cooldown[classtable.ShadowWordPain].ready then
         if not setSpell then setSpell = classtable.ShadowWordPain end
     end
-    if (MaxDps:CheckSpellUsable(classtable.MindBlast, 'MindBlast')) and cooldown[classtable.MindBlast].ready then
-        if not setSpell then setSpell = classtable.MindBlast end
+    if (MaxDps:CheckSpellUsable(classtable.HolyFire, 'HolyFire')) and (MaxDps:FindDeBuffAuraData(classtable.HolyFire).refreshable) and cooldown[classtable.HolyFire].ready then
+        if not setSpell then setSpell = classtable.HolyFire end
     end
-    --if (MaxDps:CheckSpellUsable(classtable.ShadowWordDeath, 'ShadowWordDeath')) and healthPerc >= 50 and cooldown[classtable.ShadowWordDeath].ready then
-    --    if not setSpell then setSpell = classtable.ShadowWordDeath end
-    --end
-    if (MaxDps:CheckSpellUsable(classtable.MindFlay, 'MindFlay')) and cooldown[classtable.MindFlay].ready then
-        if not setSpell then setSpell = classtable.MindFlay end
+    if (MaxDps:CheckSpellUsable(classtable.Smite, 'Smite')) and cooldown[classtable.Smite].ready then
+        if not setSpell then setSpell = classtable.Smite end
     end
 end
-function Priest:Shadow()
+
+function Holy:callaction()
+    if targets > 1 then
+        Discipline:AoE()
+    end
+    Discipline:st()
+end
+function Priest:Holy()
     fd = MaxDps.FrameData
     ttd = (fd.timeToDie and fd.timeToDie) or 500
     timeShift = fd.timeShift
@@ -123,18 +121,14 @@ function Priest:Shadow()
     InsanityDeficit = InsanityMax - Insanity
     ManaPerc = (Mana / ManaMax) * 100
 
-
-    classtable.Shadowform = 15473
-    classtable.VampiricEmbrace = 15286
-    classtable.VampiricTouch = 34917
+    classtable.HolyNova = 15237
     classtable.ShadowWordPain = 25367
-    classtable.MindBlast = 10947
-    classtable.ShadowWordDeath = 32996
-    classtable.MindFlay = 25387
+    classtable.HolyFire = 14914
+    classtable.Smite = 585
 
     setSpell = nil
     ClearCDs()
 
-    Shadow:callaction()
+    Holy:callaction()
     if setSpell then return setSpell end
 end

@@ -26,6 +26,8 @@ Specialization/Cata/Shadow.lua
 #@end-version-cata@
 
 #@version-bcc@
+Specialization/TBC/Discipline.lua
+Specialization/TBC/Holy.lua
 Specialization/TBC/Shadow.lua
 #@end-version-bcc@
 
