@@ -65,22 +65,63 @@ local ManaDeficit
 local ManaPerc
 
 local Holy = {}
+addonTable.Holy = Holy
+local holyNovaUsable
 
 local function ClearCDs()
 end
 
 function Holy:AoE()
-    if (MaxDps:CheckSpellUsable(classtable.HolyNova, 'HolyNova')) and cooldown[classtable.HolyNova].ready then
+    if holyNovaUsable and cooldown[classtable.HolyNova] and cooldown[classtable.HolyNova].ready then
         if not setSpell then setSpell = classtable.HolyNova end
     end
 end
 
-function Holy:st()
-    if (MaxDps:CheckSpellUsable(classtable.ShadowWordPain, 'ShadowWordPain')) and (MaxDps:FindDeBuffAuraData(classtable.ShadowWordPain).refreshable) and cooldown[classtable.ShadowWordPain].ready then
+function Holy:long()
+    local holyFireDebuff = MaxDps:FindDeBuffAuraData(classtable.HolyFire)
+    if (MaxDps:CheckSpellUsable(classtable.HolyFire, 'Holy Fire')) and holyFireDebuff and holyFireDebuff.refreshable and cooldown[classtable.HolyFire].ready then
+        if not setSpell then setSpell = classtable.HolyFire end
+    end
+
+    local shadowWordPainDebuff = MaxDps:FindDeBuffAuraData(classtable.ShadowWordPain)
+    if (MaxDps:CheckSpellUsable(classtable.ShadowWordPain, 'Shadow Word: Pain')) and shadowWordPainDebuff and shadowWordPainDebuff.refreshable and cooldown[classtable.ShadowWordPain].ready then
         if not setSpell then setSpell = classtable.ShadowWordPain end
     end
-    if (MaxDps:CheckSpellUsable(classtable.HolyFire, 'HolyFire')) and (MaxDps:FindDeBuffAuraData(classtable.HolyFire).refreshable) and cooldown[classtable.HolyFire].ready then
-        if not setSpell then setSpell = classtable.HolyFire end
+
+    if (MaxDps:CheckSpellUsable(classtable.MindBlast, 'Mind Blast')) and cooldown[classtable.MindBlast].ready then
+        if not setSpell then setSpell = classtable.MindBlast end
+    end
+    if (MaxDps:CheckSpellUsable(classtable.Smite, 'Smite')) and cooldown[classtable.Smite].ready then
+        if not setSpell then setSpell = classtable.Smite end
+    end
+    if (MaxDps:CheckSpellUsable(classtable.Shoot, 'Shoot')) and cooldown[classtable.Shoot].ready then
+        if not setSpell then setSpell = classtable.Shoot end
+    end
+end
+
+function Holy:mid()
+    local shadowWordPainDebuff = MaxDps:FindDeBuffAuraData(classtable.ShadowWordPain)
+    if (MaxDps:CheckSpellUsable(classtable.ShadowWordPain, 'Shadow Word: Pain')) and shadowWordPainDebuff and shadowWordPainDebuff.refreshable and cooldown[classtable.ShadowWordPain].ready then
+        if not setSpell then setSpell = classtable.ShadowWordPain end
+    end
+
+    if (MaxDps:CheckSpellUsable(classtable.MindBlast, 'Mind Blast')) and cooldown[classtable.MindBlast].ready then
+        if not setSpell then setSpell = classtable.MindBlast end
+    end
+    if (MaxDps:CheckSpellUsable(classtable.Smite, 'Smite')) and cooldown[classtable.Smite].ready then
+        if not setSpell then setSpell = classtable.Smite end
+    end
+    if (MaxDps:CheckSpellUsable(classtable.Shoot, 'Shoot')) and cooldown[classtable.Shoot].ready then
+        if not setSpell then setSpell = classtable.Shoot end
+    end
+end
+
+function Holy:short()
+    if (MaxDps:CheckSpellUsable(classtable.MindBlast, 'Mind Blast')) and cooldown[classtable.MindBlast].ready then
+        if not setSpell then setSpell = classtable.MindBlast end
+    end
+    if (MaxDps:CheckSpellUsable(classtable.Shoot, 'Shoot')) and cooldown[classtable.Shoot].ready then
+        if not setSpell then setSpell = classtable.Shoot end
     end
     if (MaxDps:CheckSpellUsable(classtable.Smite, 'Smite')) and cooldown[classtable.Smite].ready then
         if not setSpell then setSpell = classtable.Smite end
@@ -88,14 +129,19 @@ function Holy:st()
 end
 
 function Holy:callaction()
-    local Discipline = addonTable.Discipline
-    if Discipline then
-        if targets > 1 then
-            Discipline:AoE()
-        end
-        Discipline:st()
+    if targets > 1 then
+        Holy:AoE()
+    end
+
+    if ttd >= 12 then
+        Holy:long()
+    elseif ttd >= 8 then
+        Holy:mid()
+    else
+        Holy:short()
     end
 end
+
 function Priest:Holy()
     fd = MaxDps.FrameData
     ttd = (fd.timeToDie and fd.timeToDie) or 500
@@ -125,9 +171,13 @@ function Priest:Holy()
     ManaPerc = (Mana / ManaMax) * 100
 
     classtable.HolyNova = 15237
-    classtable.ShadowWordPain = 25367
+    classtable.ShadowWordPain = 589
     classtable.HolyFire = 14914
+    classtable.MindBlast = 8092
     classtable.Smite = 585
+    classtable.Shoot = 5019
+
+    holyNovaUsable = MaxDps:CheckSpellUsable(classtable.HolyNova, 'Holy Nova')
 
     setSpell = nil
     ClearCDs()
