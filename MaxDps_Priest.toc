@@ -1,0 +1,18 @@
+## Title: MaxDps_Priest
+## Version: v11.2.1
+## Author: Kaminaris
+## Interface: 20505
+## Dependencies: MaxDps
+## LoadOnDemand: 1
+## X-Curse-Project-ID: 98744
+## X-WoWI-ID: 24648
+## X-Wago-ID: qGZRbvGd
+
+Main.lua
+
+
+Specialization/TBC/Discipline.lua
+Specialization/TBC/Holy.lua
+Specialization/TBC/Shadow.lua
+
+

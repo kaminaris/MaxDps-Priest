@@ -1,0 +1,87 @@
+local _, addonTable = ...
+local Priest = addonTable.Priest
+local MaxDps = _G.MaxDps
+if not MaxDps then return end
+
+local GetItemCooldown = C_Item.GetItemCooldown
+local usedTrinkets = {}
+
+local Discipline = {}
+
+function Priest:Discipline()
+    local _, class = UnitClass("player")
+    local currentSpec = GetSpecialization()
+    local specIndex = GetSpecializationInfo(currentSpec)
+    local specName = specIndex and MaxDps.idtospec[specIndex]
+
+    if class and specName and MaxDps.classCooldowns[class] and MaxDps.classCooldowns[class][specName] then
+        for _, spellID in pairs(MaxDps.classCooldowns[class][specName].defensive) do
+            --print("Defensive:", spellName, spellID)
+            if MaxDps:CheckSpellUsable(spellID) then
+                MaxDps:GlowDefensiveHPMidnight(spellID, true)
+            end
+        end
+    end
+    if class and specName
+        and MaxDps.classInterrupts[class]
+        and MaxDps.classInterrupts[class][specName]
+    then
+        for _, spellID in pairs(MaxDps.classInterrupts[class][specName]) do
+            --print("Defensive:", spellName, spellID)
+            if MaxDps:CheckSpellUsable(spellID) then
+                MaxDps:GlowInteruptMidnight(spellID)
+            end
+        end
+    end
+    if class and specName and MaxDps.classCooldowns[class] and MaxDps.classCooldowns[class][specName] then
+        for _, spellID in pairs(MaxDps.classCooldowns[class][specName].offensive) do
+            --print("Defensive:", spellName, spellID)
+            if not MaxDps.FrameData.ACSpells or not MaxDps.FrameData.ACSpells[spellID] then
+                if MaxDps:CheckSpellUsable(spellID) then
+                    MaxDps:GlowCooldownMidnight(spellID, true)
+                end
+            end
+            --else
+            --    if MaxDps and MaxDps.Spells and MaxDps.Spells[spellID] and not InCombatLockdown() then
+            --        for i=1,#MaxDps.Spells[spellID] do
+            --            C_ActionBar.UnregisterActionUIButton(MaxDps.Spells[spellID][i])
+            --        end
+            --    end
+            --    if MaxDps and MaxDps.FrameData and MaxDps.FrameData.ACSpells and MaxDps.FrameData.ACSpells[spellID] then
+            --        MaxDps.FrameData.ACSpells[spellID] = nil
+            --    end
+            if MaxDps and MaxDps.FrameData and MaxDps.FrameData.ACSpells and MaxDps.FrameData.ACSpells[spellID] then
+                if self.Flags[spellID] then
+                    MaxDps:GlowCooldownMidnight(spellID, false)
+                    self.Flags[spellID] = nil
+                end
+            end
+        end
+    end
+    for itemID, spellID in pairs(usedTrinkets) do
+        local itemID1 = GetInventoryItemID("player", 13)
+        local itemID2 = GetInventoryItemID("player", 14)
+        if self.Flags[spellID] and (itemID1 ~= itemID and itemID2 ~= itemID) then
+            MaxDps:GlowCooldownMidnight(spellID, false)
+            self.Flags[spellID] = nil
+            usedTrinkets[itemID] = nil
+        end
+    end
+    if MaxDps.ItemSpells then
+        for itemID, spellID in pairs(MaxDps.ItemSpells) do
+            --print("Defensive:", spellName, spellID)
+            local itemID1 = GetInventoryItemID("player", 13)
+            local itemID2 = GetInventoryItemID("player", 14)
+            if itemID1 == itemID or itemID2 == itemID then
+                if GetItemCooldown(itemID) == 0 then
+                    if C_Item.IsUsableItem(itemID) then
+                        MaxDps:GlowCooldownMidnight(spellID, true)
+                        usedTrinkets[itemID] = spellID
+                    end
+                else
+                    MaxDps:GlowCooldownMidnight(spellID, false)
+                end
+            end
+        end
+    end
+end
