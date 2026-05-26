@@ -126,11 +126,11 @@ function Priest:Shadow()
 
     classtable.Shadowform = 15473
     classtable.VampiricEmbrace = 15286
-    classtable.VampiricTouch = 34917
-    classtable.ShadowWordPain = 25367
-    classtable.MindBlast = 10947
-    classtable.ShadowWordDeath = 32996
-    classtable.MindFlay = 25387
+    classtable.VampiricTouch = 34914
+    classtable.ShadowWordPain = 589
+    classtable.MindBlast = 8092
+    classtable.ShadowWordDeath = 32379
+    classtable.MindFlay = 15407
 
     setSpell = nil
     ClearCDs()

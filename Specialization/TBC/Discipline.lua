@@ -53,7 +53,7 @@ local curentHP
 local maxHP
 local healthPerc
 local timeInCombat
-local classtable
+-- local classtable
 local LibRangeCheck = LibStub('LibRangeCheck-3.0', true)
 
 local Insanity
@@ -65,25 +65,36 @@ local ManaDeficit
 local ManaPerc
 
 local Discipline = {}
+addonTable.Discipline = Discipline
 
 local function ClearCDs()
 end
 
 function Discipline:AoE()
-    if (MaxDps:CheckSpellUsable(classtable.HolyNova, 'HolyNova')) and cooldown[classtable.HolyNova].ready then
-        if not setSpell then setSpell = classtable.HolyNova end
+    if not Discipline.classtable then Discipline.classtable = MaxDps.SpellTable or {} end
+    if not cooldown then cooldown = (MaxDps.FrameData and MaxDps.FrameData.cooldown) or {} end
+    if not buff then buff = (MaxDps.FrameData and MaxDps.FrameData.buff) or {} end
+    if not debuff then debuff = (MaxDps.FrameData and MaxDps.FrameData.debuff) or {} end
+    if not talents then talents = (MaxDps.FrameData and MaxDps.FrameData.talents) or {} end
+    if (MaxDps:CheckSpellUsable(Discipline.classtable.HolyNova, 'HolyNova')) and cooldown[Discipline.classtable.HolyNova].ready then
+        if not setSpell then setSpell = Discipline.classtable.HolyNova end
     end
 end
 
 function Discipline:st()
-    if (MaxDps:CheckSpellUsable(classtable.ShadowWordPain, 'ShadowWordPain')) and (MaxDps:FindDeBuffAuraData(classtable.ShadowWordPain).refreshable) and cooldown[classtable.ShadowWordPain].ready then
-        if not setSpell then setSpell = classtable.ShadowWordPain end
+    if not Discipline.classtable then Discipline.classtable = MaxDps.SpellTable or {} end
+    if not cooldown then cooldown = (MaxDps.FrameData and MaxDps.FrameData.cooldown) or {} end
+    if not buff then buff = (MaxDps.FrameData and MaxDps.FrameData.buff) or {} end
+    if not debuff then debuff = (MaxDps.FrameData and MaxDps.FrameData.debuff) or {} end
+    if not talents then talents = (MaxDps.FrameData and MaxDps.FrameData.talents) or {} end
+    if (MaxDps:CheckSpellUsable(Discipline.classtable.ShadowWordPain, 'ShadowWordPain')) and (MaxDps:FindDeBuffAuraData(Discipline.classtable.ShadowWordPain).refreshable) and cooldown[Discipline.classtable.ShadowWordPain].ready then
+        if not setSpell then setSpell = Discipline.classtable.ShadowWordPain end
     end
-    if (MaxDps:CheckSpellUsable(classtable.HolyFire, 'HolyFire')) and (MaxDps:FindDeBuffAuraData(classtable.HolyFire).refreshable) and cooldown[classtable.HolyFire].ready then
-        if not setSpell then setSpell = classtable.HolyFire end
+    if (MaxDps:CheckSpellUsable(Discipline.classtable.HolyFire, 'HolyFire')) and (MaxDps:FindDeBuffAuraData(Discipline.classtable.HolyFire).refreshable) and cooldown[Discipline.classtable.HolyFire].ready then
+        if not setSpell then setSpell = Discipline.classtable.HolyFire end
     end
-    if (MaxDps:CheckSpellUsable(classtable.Smite, 'Smite')) and cooldown[classtable.Smite].ready then
-        if not setSpell then setSpell = classtable.Smite end
+    if (MaxDps:CheckSpellUsable(Discipline.classtable.Smite, 'Smite')) and cooldown[Discipline.classtable.Smite].ready then
+        if not setSpell then setSpell = Discipline.classtable.Smite end
     end
 end
 
@@ -114,7 +125,7 @@ function Priest:Discipline()
     maxHP = UnitHealthMax('player')
     healthPerc = (curentHP / maxHP) * 100
     timeInCombat = MaxDps.combatTime or 0
-    classtable = MaxDps.SpellTable or {}
+    Discipline.classtable = MaxDps.SpellTable or {}
     SpellHaste = UnitSpellHaste('player')
     SpellCrit = GetCritChance()
     Insanity = UnitPower('player', InsanityPT)
@@ -123,10 +134,10 @@ function Priest:Discipline()
     ManaPerc = (Mana / ManaMax) * 100
 
 
-    classtable.HolyNova = 15237
-    classtable.ShadowWordPain = 25367
-    classtable.HolyFire = 14914
-    classtable.Smite = 585
+    Discipline.classtable.HolyNova = 15237
+    Discipline.classtable.ShadowWordPain = 589
+    Discipline.classtable.HolyFire = 14914
+    Discipline.classtable.Smite = 585
 
     setSpell = nil
     ClearCDs()
