@@ -89,9 +89,9 @@ end
 
 function Holy:callaction()
     if targets > 1 then
-        Discipline:AoE()
+        Holy:AoE()
     end
-    Discipline:st()
+    Holy:st()
 end
 function Priest:Holy()
     fd = MaxDps.FrameData
