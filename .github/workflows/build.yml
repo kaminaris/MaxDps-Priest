@@ -1,0 +1,50 @@
+name: CI-ReleaseBuild
+
+on:
+  push:
+    tags:
+      - '*'
+    paths-ignore:
+      - '.github/**'
+
+env:
+  CF_API_KEY: ${{ secrets.CF_API_KEY }}
+  WOWI_API_TOKEN: ${{ secrets.WOWI_API_TOKEN }}
+  WAGO_API_TOKEN: ${{ secrets.WAGO_API_TOKEN }}
+  GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout addon
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Package Retail
+        uses: BigWigsMods/packager@master
+        with:
+            args: -g retail
+
+      - name: Package Cata Classic
+        uses: BigWigsMods/packager@master
+        with:
+          args: -g cata
+
+      - name: Package TBC Classic
+        uses: BigWigsMods/packager@master
+        with:
+          args: -g bcc
+
+      - name: Package Classic
+        uses: BigWigsMods/packager@master
+        with:
+          args: -g classic
+
+      - name: Package MoP Classic
+        uses: BigWigsMods/packager@master
+        with:
+          args: -g mists
